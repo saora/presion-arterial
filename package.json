@@ -1,0 +1,18 @@
+{
+  "name": "presion-arterial",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.3"
+  },
+  "dependencies": {
+    "tesseract.js": "^7.0.0"
+  }
+}

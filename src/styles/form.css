@@ -1,0 +1,171 @@
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.page-header p {
+  margin: 6px 0 0;
+
+  color: #6e6e73;
+  font-size: 15px;
+}
+
+
+/* =========================
+   FORM
+   ========================= */
+
+.blood-pressure-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+.form-row {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.form-field label {
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #3a3a3c;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+
+  border: 1px solid #d1d1d6;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  padding: 13px 14px;
+
+  color: #1d1d1f;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: #007aff;
+
+  box-shadow:
+    0 0 0 3px rgba(0, 122, 255, 0.12);
+}
+
+.form-field textarea {
+  resize: vertical;
+}
+
+
+/* =========================
+   MEASUREMENT
+   ========================= */
+
+.measurement-card {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+
+  padding: 16px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.measurement-card .form-field {
+  min-width: 0;
+}
+
+.input-with-unit {
+  position: relative;
+}
+
+.input-with-unit input {
+  padding-right: 50px;
+}
+
+.input-with-unit span {
+  position: absolute;
+
+  right: 12px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  font-size: 12px;
+
+  color: #8e8e93;
+
+  pointer-events: none;
+}
+
+
+/* =========================
+   BUTTON
+   ========================= */
+
+.primary-button {
+  width: 100%;
+
+  border: 0;
+  border-radius: 14px;
+
+  padding: 15px;
+
+  background: #007aff;
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.primary-button:active {
+  transform: scale(0.98);
+}
+
+
+/* =========================
+   MESSAGE
+   ========================= */
+
+.form-message {
+  min-height: 20px;
+
+  font-size: 14px;
+
+  text-align: center;
+}
