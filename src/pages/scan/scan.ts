@@ -307,6 +307,8 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
       const result = await ocrService.recognize(canvas);
       const parsed = parseBloodPressureText(result.text);
 
+      updateOcrDebug(index + 1, result.text);
+
       console.log("SCAN: OCR reading", index + 1, result.text);
       console.log("SCAN: parsed reading", index + 1, parsed);
 
@@ -396,6 +398,25 @@ function showParsedScanResult(
   container.hidden = false;
   waitingForRetry = true;
   updateConfirmButtonState();
+}
+
+function updateOcrDebug(
+  readingNumber: number,
+  text: string,
+): void {
+  const element = document.getElementById("scanOcrDebug");
+
+  if (!element) {
+    return;
+  }
+
+  const currentText =
+    element.textContent === "Esperando lectura..."
+      ? ""
+      : `${element.textContent}\n`;
+
+  element.textContent =
+    `${currentText}Lectura ${readingNumber}/3:\n${text || "(sin texto)"}`;
 }
 
 function setInputValue(
@@ -533,6 +554,15 @@ function resetScanResult(): void {
   setInputValue("scanSystolic", null);
   setInputValue("scanDiastolic", null);
   setInputValue("scanPulse", null);
+
+  const debugElement = document.getElementById(
+    "scanOcrDebug",
+  );
+
+  if (debugElement) {
+    debugElement.textContent = "Esperando lectura...";
+  }
+
   updateConfirmButtonState();
 }
 
