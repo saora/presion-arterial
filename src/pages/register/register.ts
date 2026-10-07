@@ -2,6 +2,8 @@ import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
 import registerTemplate from "./register.html?raw";
 
+let dateTimeInterval: number | undefined;
+
 export function renderRegisterPage(): string {
   return registerTemplate;
 }
@@ -23,6 +25,14 @@ export function initializeRegisterPage(): void {
 
   initializeDateTime();
 
+  window.clearInterval(dateTimeInterval);
+  dateTimeInterval = window.setInterval(
+    initializeDateTime,
+    1000,
+  );
+
+  initializeInputConstraints();
+
   updateSaveButtonState(form, saveButton);
 
   form.addEventListener("input", () => {
@@ -36,6 +46,60 @@ export function initializeRegisterPage(): void {
   form.addEventListener("submit", handleFormSubmit);
 
   console.log("REGISTER: initialized");
+}
+
+function initializeInputConstraints(): void {
+  const numericFields = [
+    "sistolica",
+    "diastolica",
+    "pulso",
+  ];
+
+  numericFields.forEach((fieldId) => {
+    const field = document.getElementById(
+      fieldId,
+    ) as HTMLInputElement | null;
+
+    field?.addEventListener("input", () => {
+      field.value = field.value
+        .replace(/\D/g, "")
+        .slice(0, 3);
+    });
+  });
+
+  const symptoms = document.getElementById(
+    "sintomas",
+  ) as HTMLInputElement | null;
+
+  symptoms?.addEventListener("input", () => {
+    symptoms.value = symptoms.value
+      .replace(/[^\p{L}\s]/gu, "")
+      .slice(0, 25);
+  });
+
+  const observations = document.getElementById(
+    "observaciones",
+  ) as HTMLTextAreaElement | null;
+
+  const observationsCounter = document.getElementById(
+    "observacionesCounter",
+  );
+
+  const updateObservationsCounter = (): void => {
+    if (!observations || !observationsCounter) {
+      return;
+    }
+
+    observationsCounter.textContent =
+      `${String(observations.value.length).padStart(2, "0")}/100`;
+  };
+
+  observations?.addEventListener(
+    "input",
+    updateObservationsCounter,
+  );
+
+  updateObservationsCounter();
 }
 
 function initializeDateTime(): void {

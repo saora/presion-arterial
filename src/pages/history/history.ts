@@ -43,6 +43,10 @@ export function initializeHistoryPage(): void {
   console.log("HISTORY: initialized");
 }
 
+export function refreshHistoryPage(): void {
+  void loadHistory();
+}
+
 
 /* =========================
    LOAD HISTORY

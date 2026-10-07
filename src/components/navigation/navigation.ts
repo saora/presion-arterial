@@ -4,7 +4,9 @@ export function renderNavigation(): string {
   return navigationTemplate;
 }
 
-export function initializeNavigation(): void {
+export function initializeNavigation(
+  onPageChange?: (page: string) => void,
+): void {
   const navigationItems =
     document.querySelectorAll<HTMLButtonElement>(".nav-item");
 
@@ -16,14 +18,17 @@ export function initializeNavigation(): void {
         return;
       }
 
-      showPage(page);
+      showPage(page, onPageChange);
     });
   });
 
   console.log("NAVIGATION: initialized");
 }
 
-function showPage(page: string): void {
+function showPage(
+  page: string,
+  onPageChange?: (page: string) => void,
+): void {
   const pages = document.querySelectorAll<HTMLElement>(".page");
 
   const navigationItems =
@@ -44,4 +49,6 @@ function showPage(page: string): void {
   });
 
   console.log("NAVIGATION: page", page);
+
+  onPageChange?.(page);
 }

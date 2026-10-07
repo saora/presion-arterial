@@ -88,64 +88,84 @@ export function historyRecordTemplate(
   record: BloodPressureRecord,
   isLatest = false,
 ): string {
+  const cardClass = `history-card ${isLatest ? "history-card-latest" : ""}`;
+  const recordContent = `
+    <div class="history-card-header">
+
+      <div>
+        <span class="history-date">
+          ${escapeHtml(formatDate(record.fecha))}
+        </span>
+
+        <span class="history-time">
+          · ${escapeHtml(formatTime(record.hora))}
+        </span>
+      </div>
+
+      <div class="history-arm ${getArmClass(record.brazo)}">
+        ${escapeHtml(record.brazo)}
+      </div>
+
+    </div>
+
+
+    <div class="history-measurement">
+
+      <div class="history-pressure">
+
+        <span class="history-pressure-value">
+          ${record.sistolica} / ${record.diastolica}
+        </span>
+
+        <span class="history-pressure-unit">
+          mmHg
+        </span>
+
+      </div>
+
+
+      <div class="history-pulse">
+
+        <span class="history-pulse-value">
+          ${record.pulso}
+        </span>
+
+        <span class="history-pulse-unit">
+          lpm
+        </span>
+
+      </div>
+
+    </div>
+  `;
+
+  const optionalDetails = renderOptionalDetails(record);
+
+  if (optionalDetails) {
+    return `
+      <details class="${cardClass}">
+
+        <summary class="history-card-summary">
+          ${recordContent}
+        </summary>
+
+        ${optionalDetails}
+
+      </details>
+    `;
+  }
+
   return `
-    <article
-      class="history-card ${isLatest ? "history-card-latest" : ""}"
-    >
-
-      <div class="history-card-header">
-
-        <div>
-          <span class="history-date">
-            ${escapeHtml(formatDate(record.fecha))}
-          </span>
-
-          <span class="history-time">
-            · ${escapeHtml(formatTime(record.hora))}
-          </span>
-        </div>
-
-        <div class="history-arm">
-          ${escapeHtml(record.brazo)}
-        </div>
-
-      </div>
-
-
-      <div class="history-measurement">
-
-        <div class="history-pressure">
-
-          <span class="history-pressure-value">
-            ${record.sistolica} / ${record.diastolica}
-          </span>
-
-          <span class="history-pressure-unit">
-            mmHg
-          </span>
-
-        </div>
-
-
-        <div class="history-pulse">
-
-          <span class="history-pulse-value">
-            ${record.pulso}
-          </span>
-
-          <span class="history-pulse-unit">
-            lpm
-          </span>
-
-        </div>
-
-      </div>
-
-
-      ${renderOptionalDetails(record)}
-
+    <article class="${cardClass}">
+      ${recordContent}
     </article>
   `;
+}
+
+function getArmClass(arm: string): string {
+  return arm.trim().toLowerCase() === "derecho"
+    ? "history-arm-right"
+    : "history-arm-left";
 }
 
 /* =========================

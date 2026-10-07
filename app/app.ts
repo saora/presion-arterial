@@ -24,6 +24,7 @@ import { renderScanPage, initializeScanPage } from "../src/pages/scan/scan";
 import {
   renderHistoryPage,
   initializeHistoryPage,
+  refreshHistoryPage,
 } from "../src/pages/history/history";
 
 export function initializeApp(): void {
@@ -46,5 +47,9 @@ export function initializeApp(): void {
   initializeRegisterPage();
   initializeHistoryPage();
   initializeScanPage();
-  initializeNavigation();
+  initializeNavigation((page) => {
+    if (page === "history") {
+      refreshHistoryPage();
+    }
+  });
 }

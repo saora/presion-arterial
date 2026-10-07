@@ -98,6 +98,56 @@
   border-color: #007aff;
 }
 
+.date-time-control {
+  position: relative;
+}
+
+.date-time-control input {
+  padding-left: 38px !important;
+}
+
+.date-time-control input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  opacity: 0;
+
+  cursor: pointer;
+}
+
+.date-time-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  z-index: 1;
+
+  width: 17px;
+  height: 17px;
+
+  color: #8e8e93;
+
+  pointer-events: none;
+
+  transform: translateY(-50%);
+}
+
+.date-time-icon svg {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
 
 /* =========================
    FORM FIELDS
@@ -155,6 +205,95 @@
 
 .form-field textarea {
   resize: vertical;
+}
+
+.arm-field {
+  min-width: 0;
+
+  margin: 0;
+
+  border: 0;
+  padding: 0;
+}
+
+.arm-field legend {
+  margin-bottom: 7px;
+
+  color: #3a3a3c;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.arm-toggle {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 4px;
+
+  padding: 4px;
+
+  background: #e5e5ea;
+
+  border-radius: 10px;
+}
+
+.arm-toggle input {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  margin: -1px;
+
+  overflow: hidden;
+
+  clip-path: inset(50%);
+
+  white-space: nowrap;
+}
+
+.arm-toggle label {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+
+  border-radius: 8px;
+
+  color: #6e6e73;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.arm-toggle input:checked + label {
+  background: #3b72ff;
+
+  color: #ffffff;
+
+  font-weight: 600;
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.arm-toggle input:focus-visible + label {
+  outline: 3px solid rgba(59, 114, 255, 0.25);
+  outline-offset: 1px;
+}
+
+.character-counter {
+  align-self: flex-end;
+
+  color: #8e8e93;
+
+  font-size: 12px;
 }
 
 
@@ -385,7 +524,7 @@
   }
 
   .form-row .form-field input {
-    padding: 10px;
+    padding: 10px 10px 10px 38px;
   }
 
   .measurement-card {

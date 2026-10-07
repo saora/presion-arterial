@@ -225,6 +225,46 @@
   transform: scale(0.99);
 }
 
+.history-card-summary {
+  position: relative;
+
+  display: block;
+
+  cursor: pointer;
+  list-style: none;
+}
+
+.history-card-summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-card-summary::after {
+  position: absolute;
+  top: 50%;
+  right: 3px;
+
+  width: 7px;
+  height: 7px;
+
+  border-right: 1.5px solid #8e8e93;
+  border-bottom: 1.5px solid #8e8e93;
+
+  content: "";
+
+  transform: translateY(-70%) rotate(45deg);
+
+  transition: transform 0.2s ease;
+}
+
+.history-card[open] .history-card-summary::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+
+.history-card-summary:focus-visible {
+  outline: 2px solid #3b72ff;
+  outline-offset: 3px;
+}
+
 
 /* =========================
    LATEST RECORD
@@ -253,6 +293,8 @@
   justify-content: space-between;
 
   gap: 10px;
+
+  padding-right: 20px;
 
   margin: 0 0 6px;
 }
@@ -298,6 +340,18 @@
   font-weight: 600;
 
   line-height: 1.2;
+}
+
+.history-arm-left {
+  background: rgba(59, 114, 255, 0.12);
+
+  color: #3b72ff;
+}
+
+.history-arm-right {
+  background: rgba(230, 126, 34, 0.14);
+
+  color: #c56613;
 }
 
 
