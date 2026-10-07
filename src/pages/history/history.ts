@@ -204,6 +204,7 @@ function initializeDeleteButtons(): void {
   deleteButtons.forEach((button) => {
     button.addEventListener("click", async (event) => {
       event.stopPropagation();
+      event.preventDefault();
 
       const id = Number(button.dataset.recordId);
 

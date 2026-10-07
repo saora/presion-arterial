@@ -226,6 +226,10 @@
 }
 
 .history-delete-button {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+
   display: flex;
 
   align-items: center;
@@ -234,7 +238,7 @@
   width: 30px;
   height: 30px;
 
-  margin: 10px 0 0 auto;
+  margin: 0;
 
   border: 0;
   border-radius: 8px;
@@ -244,6 +248,8 @@
   color: #8e8e93;
 
   cursor: pointer;
+
+  transform: translateX(-50%);
 }
 
 .history-delete-button:hover {
@@ -388,6 +394,11 @@
   font-weight: 600;
 
   line-height: 1.2;
+}
+
+.history-arm-group {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .history-arm-left {

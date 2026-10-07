@@ -89,6 +89,7 @@ export function historyRecordTemplate(
   isLatest = false,
 ): string {
   const cardClass = `history-card ${isLatest ? "history-card-latest" : ""}`;
+  const deleteButton = renderDeleteButton(record);
   const recordContent = `
     <div class="history-card-header">
 
@@ -102,8 +103,12 @@ export function historyRecordTemplate(
         </span>
       </div>
 
-      <div class="history-arm ${getArmClass(record.brazo)}">
-        ${escapeHtml(record.brazo)}
+      <div class="history-arm-group">
+        <div class="history-arm ${getArmClass(record.brazo)}">
+          ${escapeHtml(record.brazo)}
+        </div>
+
+        ${deleteButton}
       </div>
 
     </div>
@@ -140,7 +145,6 @@ export function historyRecordTemplate(
   `;
 
   const optionalDetails = renderOptionalDetails(record);
-  const deleteButton = renderDeleteButton(record);
 
   if (optionalDetails) {
     return `
@@ -152,8 +156,6 @@ export function historyRecordTemplate(
 
         ${optionalDetails}
 
-        ${deleteButton}
-
       </details>
     `;
   }
@@ -161,7 +163,6 @@ export function historyRecordTemplate(
   return `
     <article class="${cardClass}">
       ${recordContent}
-      ${deleteButton}
     </article>
   `;
 }
