@@ -18,14 +18,47 @@ export function initializeNavigation(
         return;
       }
 
+      if (page === "register" || page === "scan") {
+        showRegisterChoiceModal();
+        return;
+      }
+
       showPage(page, onPageChange);
     });
   });
 
+  const modal = document.getElementById("registerChoiceModal");
+
+  modal?.querySelectorAll<HTMLButtonElement>("[data-register-choice]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        const choice = button.dataset.registerChoice;
+
+        hideRegisterChoiceModal();
+
+        if (choice === "manual") {
+          showPage("register", onPageChange);
+          return;
+        }
+
+        if (choice === "scan") {
+          showPage("scan", onPageChange);
+          return;
+        }
+      });
+    });
+
+  modal?.querySelectorAll<HTMLButtonElement>("[data-close-modal]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        hideRegisterChoiceModal();
+      });
+    });
+
   console.log("NAVIGATION: initialized");
 }
 
-function showPage(
+export function showPage(
   page: string,
   onPageChange?: (page: string) => void,
 ): void {
@@ -51,4 +84,26 @@ function showPage(
   console.log("NAVIGATION: page", page);
 
   onPageChange?.(page);
+}
+
+function showRegisterChoiceModal(): void {
+  const modal = document.getElementById("registerChoiceModal");
+
+  if (!modal) {
+    return;
+  }
+
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function hideRegisterChoiceModal(): void {
+  const modal = document.getElementById("registerChoiceModal");
+
+  if (!modal) {
+    return;
+  }
+
+  modal.hidden = true;
+  modal.setAttribute("aria-hidden", "true");
 }

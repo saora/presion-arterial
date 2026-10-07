@@ -1,7 +1,27 @@
-<section id="page-register" class="page active">
-  <div class="page-header">
-    <h2>Registrar medición</h2>
-    <p>Ingresa los datos de tu medición.</p>
+<section id="page-register" class="page active" hidden>
+  <div class="page-header page-header-inline">
+    <button
+      type="button"
+      class="page-back-button"
+      aria-label="Volver al inicio"
+      data-back-to-home="true"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path
+          d="M15 18L9 12L15 6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    <div class="page-header-copy">
+      <h2>Registrar medición</h2>
+      <p>Ingresa los datos de tu medición.</p>
+    </div>
   </div>
 
   <form id="bloodPressureForm" class="blood-pressure-form">
@@ -119,57 +139,72 @@
     <fieldset class="form-field arm-field">
       <legend>Brazo</legend>
 
-      <div class="arm-toggle">
-        <input
-          type="radio"
-          id="brazo-izquierdo"
-          name="brazo"
-          value="Izquierdo"
-          checked
-        />
-        <label for="brazo-izquierdo">Izquierdo</label>
+      <div class="arm-field-row">
+        <div class="arm-toggle" aria-label="Selecciona el brazo">
+          <input
+            type="radio"
+            id="brazo-izquierdo"
+            name="brazo"
+            value="Izquierdo"
+            checked
+          />
+          <label for="brazo-izquierdo">Izquierdo</label>
 
-        <input
-          type="radio"
-          id="brazo-derecho"
-          name="brazo"
-          value="Derecho"
-        />
-        <label for="brazo-derecho">Derecho</label>
+          <input
+            type="radio"
+            id="brazo-derecho"
+            name="brazo"
+            value="Derecho"
+          />
+          <label for="brazo-derecho">Derecho</label>
+        </div>
+
+        <button
+          type="button"
+          id="toggleExtraDetailsButton"
+          class="extra-details-toggle"
+          aria-controls="extraDetails"
+          aria-expanded="false"
+          aria-label="Mostrar más detalles"
+        >
+          +
+        </button>
       </div>
     </fieldset>
 
+    <div id="extraDetails" class="extra-details" hidden>
+      <div class="extra-details-content">
+        <div class="form-field">
+          <label for="sintomas">Síntomas</label>
 
-    <div class="form-field">
-      <label for="sintomas">Síntomas</label>
+          <input
+            type="text"
+            id="sintomas"
+            name="sintomas"
+            maxlength="25"
+            pattern="[\p{L}\s]*"
+            placeholder="Ej. Dolor de cabeza"
+          />
+        </div>
 
-      <input
-        type="text"
-        id="sintomas"
-        name="sintomas"
-        maxlength="25"
-        pattern="[\p{L}\s]*"
-        placeholder="Ej. Dolor de cabeza"
-      />
-    </div>
+        <div class="form-field">
+          <label for="observaciones">Observaciones</label>
 
+          <textarea
+            id="observaciones"
+            name="observaciones"
+            rows="3"
+            maxlength="100"
+            placeholder="Notas adicionales..."
+          ></textarea>
 
-    <div class="form-field">
-      <label for="observaciones">Observaciones</label>
-
-      <textarea
-        id="observaciones"
-        name="observaciones"
-        rows="3"
-        maxlength="100"
-        placeholder="Notas adicionales..."
-      ></textarea>
-
-      <span
-        id="observacionesCounter"
-        class="character-counter"
-        aria-live="polite"
-      >00/100</span>
+          <span
+            id="observacionesCounter"
+            class="character-counter"
+            aria-live="polite"
+          >00/100</span>
+        </div>
+      </div>
     </div>
 
 

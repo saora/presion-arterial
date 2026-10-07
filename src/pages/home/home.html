@@ -1,0 +1,57 @@
+<section id="page-home" class="page active">
+  <div class="page-header">
+    <h2>Estadísticas</h2>
+    <p>Visualiza la evolución de tus mediciones.</p>
+  </div>
+
+  <div class="dashboard-summary-header">
+    <span>última medición</span>
+  </div>
+
+  <div class="dashboard-summary">
+    <article class="summary-card summary-card-primary">
+      <div class="summary-card-content">
+        <span class="summary-label">Sistólica</span>
+        <strong id="latest-sistolica">118</strong>
+        <small>mmHg</small>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-card-content">
+        <span class="summary-label">Diastólica</span>
+        <strong id="latest-diastolica">76</strong>
+        <small>mmHg</small>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-card-content">
+        <span class="summary-label">Pulso</span>
+        <strong id="latest-pulso">72</strong>
+        <small>lpm</small>
+      </div>
+    </article>
+  </div>
+
+  <div class="dashboard-panel dashboard-chart-panel">
+    <div class="dashboard-panel-header dashboard-chart-header">
+      <div class="chart-panel-title chart-panel-title--empty" aria-hidden="true"></div>
+
+      <div class="chart-period-toggle" aria-label="Selecciona el período del gráfico">
+        <button type="button" class="chart-period-button active" data-chart-period="week" aria-pressed="true">Semana</button>
+        <button type="button" class="chart-period-button" data-chart-period="month" aria-pressed="false">Mes</button>
+      </div>
+    </div>
+
+    <div class="chart-card chart-card-stats" aria-live="polite">
+      <div class="chart-line chart-line-week" id="week-chart-bars" aria-label="Gráfica semanal"></div>
+      <div class="chart-line chart-line-month is-hidden" id="month-chart-line" aria-label="Gráfica mensual"></div>
+    </div>
+
+    <div class="chart-panel-legend" aria-label="Leyenda del gráfico">
+      <span class="legend-item legend-sistolica"><i></i>Sistólica</span>
+      <span class="legend-item legend-diastolica"><i></i>Diastólica</span>
+    </div>
+  </div>
+</section>

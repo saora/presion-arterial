@@ -2,6 +2,7 @@ import { cameraService } from "../../services/camera";
 import { ocrService } from "../../services/ocr";
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
+import { enableSwipeToggle } from "../../utils/swipe-toggle";
 import {
   parseBloodPressureText,
   type ParsedBloodPressure,
@@ -79,6 +80,17 @@ export function initializeScanPage(): void {
     "click",
     restartScanCapture,
   );
+
+  document.querySelectorAll<HTMLButtonElement>("[data-back-to-home]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelector<HTMLButtonElement>(
+          '.nav-item[data-page="home"]',
+        )?.click();
+      });
+    });
+
+  enableSwipeToggle(document.querySelector(".scan-arm-toggle"));
 
   updateConfirmButtonState();
 
@@ -296,6 +308,9 @@ function calculateSharpness(imageData: ImageData): number {
 async function captureSequence(video: HTMLVideoElement): Promise<void> {
   try {
     const readings: ParsedBloodPressure[] = [];
+    const photo = cameraService.capture(video);
+
+    showCapturedPhoto(photo);
 
     for (let index = 0; index < 3; index += 1) {
       showMessage(
@@ -303,8 +318,7 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
         "processing",
       );
 
-      const canvas = cameraService.capture(video);
-      const result = await ocrService.recognize(canvas);
+      const result = await ocrService.recognize(photo);
       const parsed = parseBloodPressureText(result.text);
 
       updateOcrDebug(index + 1, result.text);
@@ -417,6 +431,33 @@ function updateOcrDebug(
 
   element.textContent =
     `${currentText}Lectura ${readingNumber}/3:\n${text || "(sin texto)"}`;
+}
+
+function showCapturedPhoto(
+  source: HTMLCanvasElement,
+): void {
+  const preview = document.querySelector<HTMLElement>(
+    ".scan-photo-preview",
+  );
+  const canvas = document.getElementById(
+    "scanPhotoCanvas",
+  ) as HTMLCanvasElement | null;
+
+  if (!preview || !canvas) {
+    return;
+  }
+
+  canvas.width = source.width;
+  canvas.height = source.height;
+
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return;
+  }
+
+  context.drawImage(source, 0, 0);
+  preview.hidden = false;
 }
 
 function setInputValue(
@@ -561,6 +602,14 @@ function resetScanResult(): void {
 
   if (debugElement) {
     debugElement.textContent = "Esperando lectura...";
+  }
+
+  const photoPreview = document.querySelector<HTMLElement>(
+    ".scan-photo-preview",
+  );
+
+  if (photoPreview) {
+    photoPreview.hidden = true;
   }
 
   updateConfirmButtonState();

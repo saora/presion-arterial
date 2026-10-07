@@ -1,5 +1,6 @@
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
+import { enableSwipeToggle } from "../../utils/swipe-toggle";
 import registerTemplate from "./register.html?raw";
 
 let dateTimeInterval: number | undefined;
@@ -64,6 +65,19 @@ export function initializeRegisterPage(): void {
 
   initializeInputConstraints();
 
+  initializeExtraDetailsToggle();
+
+  document.querySelectorAll<HTMLButtonElement>("[data-back-to-home]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelector<HTMLButtonElement>(
+          '.nav-item[data-page="home"]',
+        )?.click();
+      });
+    });
+
+  enableSwipeToggle(document.querySelector(".arm-toggle"));
+
   updateSaveButtonState(form, saveButton);
 
   form.addEventListener("input", () => {
@@ -77,6 +91,39 @@ export function initializeRegisterPage(): void {
   form.addEventListener("submit", handleFormSubmit);
 
   console.log("REGISTER: initialized");
+}
+
+function initializeExtraDetailsToggle(): void {
+  const toggleButton = document.getElementById(
+    "toggleExtraDetailsButton",
+  ) as HTMLButtonElement | null;
+
+  const extraDetails = document.getElementById(
+    "extraDetails",
+  ) as HTMLDivElement | null;
+
+  if (!toggleButton || !extraDetails) {
+    return;
+  }
+
+  const updateToggleState = (): void => {
+    const isExpanded = !extraDetails.hidden;
+
+    toggleButton.textContent = isExpanded ? "−" : "+";
+    toggleButton.setAttribute("aria-expanded", String(isExpanded));
+    toggleButton.classList.toggle("is-open", isExpanded);
+    toggleButton.setAttribute(
+      "aria-label",
+      isExpanded ? "Ocultar detalles adicionales" : "Mostrar más detalles",
+    );
+  };
+
+  toggleButton.addEventListener("click", () => {
+    extraDetails.hidden = !extraDetails.hidden;
+    updateToggleState();
+  });
+
+  updateToggleState();
 }
 
 function initializeInputConstraints(): void {

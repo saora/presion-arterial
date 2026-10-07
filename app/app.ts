@@ -3,6 +3,7 @@ import "../src/styles/layout.css";
 import "../src/styles/header.css";
 import "../src/styles/navigation.css";
 import "../src/styles/form.css";
+import "../src/styles/chart.css";
 import "../src/styles/scan.css";
 import "../src/styles/history.css";
 
@@ -12,7 +13,13 @@ import { renderHeader } from "../src/components/header/header";
 import {
   renderNavigation,
   initializeNavigation,
+  showPage,
 } from "../src/components/navigation/navigation";
+
+import {
+  renderHomePage,
+  initializeHomePage,
+} from "../src/pages/home/home";
 
 import {
   renderRegisterPage,
@@ -31,7 +38,7 @@ import {
   refreshHistoryPage,
 } from "../src/pages/history/history";
 
-export function initializeApp(): void {
+export async function initializeApp(): Promise<void> {
   console.log("APP: initializeApp");
 
   const app = document.getElementById("app");
@@ -43,11 +50,13 @@ export function initializeApp(): void {
 
   app.innerHTML = appTemplate
     .replace("{{HEADER}}", renderHeader())
+    .replace("{{HOME}}", renderHomePage())
     .replace("{{REGISTER}}", renderRegisterPage())
     .replace("{{SCAN}}", renderScanPage())
     .replace("{{HISTORY}}", renderHistoryPage())
     .replace("{{NAVIGATION}}", renderNavigation());
 
+  initializeHomePage();
   initializeRegisterPage();
   initializeHistoryPage();
   initializeScanPage();
@@ -58,4 +67,6 @@ export function initializeApp(): void {
 
     setScanPageActive(page === "scan");
   });
+
+  showPage("home");
 }

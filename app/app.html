@@ -4,6 +4,8 @@
 
   <main class="app-content">
 
+    {{HOME}}
+
     {{REGISTER}}
 
     {{SCAN}}
@@ -11,6 +13,78 @@
     {{HISTORY}}
 
   </main>
+
+  <div
+    id="registerChoiceModal"
+    class="register-choice-modal"
+    hidden
+    aria-hidden="true"
+  >
+    <div
+      class="register-choice-backdrop"
+      data-close-modal="true"
+    ></div>
+
+    <div
+      class="register-choice-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="registerChoiceTitle"
+    >
+      <button
+        type="button"
+        class="modal-close-icon"
+        aria-label="Cerrar"
+        data-close-modal="true"
+      >
+        ×
+      </button>
+
+      <h3 id="registerChoiceTitle">¿Cómo quieres registrar?</h3>
+
+      <div class="register-choice-actions">
+        <button
+          type="button"
+          class="choice-button choice-button-primary"
+          data-register-choice="manual"
+        >
+          Manual
+        </button>
+
+        <button
+          type="button"
+          class="choice-button choice-button-icon"
+          data-register-choice="scan"
+          aria-label="Escanear medición"
+        >
+          <svg
+            class="choice-button-icon-svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M7 4H5a1 1 0 0 0-1 1v2M17 4h2a1 1 0 0 1 1 1v2M7 20H5a1 1 0 0 1-1-1v-2M17 20h2a1 1 0 0 0 1-1v-2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+
+            <circle
+              cx="12"
+              cy="12"
+              r="3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   {{NAVIGATION}}
 
