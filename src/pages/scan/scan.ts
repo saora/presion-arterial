@@ -17,6 +17,9 @@ let focusedFrames = 0;
 let lastFocusCheck = 0;
 let focusAnimationFrame: number | undefined;
 
+const FOCUS_THRESHOLD = 8;
+const REQUIRED_FOCUSED_FRAMES = 4;
+
 export function renderScanPage(): string {
   return scanTemplate.replace(
     "{{SCAN_RESULT}}",
@@ -177,11 +180,20 @@ function startFocusDetection(video: HTMLVideoElement): void {
   lastFocusCheck = 0;
 
   const checkFocus = (timestamp: number): void => {
-    if (!scanActive || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+    if (!scanActive) {
+      focusAnimationFrame = undefined;
       return;
     }
 
     focusAnimationFrame = window.requestAnimationFrame(checkFocus);
+
+    if (
+      video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+      video.videoWidth === 0 ||
+      video.videoHeight === 0
+    ) {
+      return;
+    }
 
     if (timestamp - lastFocusCheck < 120) {
       return;
@@ -198,7 +210,7 @@ function startFocusDetection(video: HTMLVideoElement): void {
     );
 
     const sharpness = calculateSharpness(imageData);
-    const focused = sharpness >= 18;
+    const focused = sharpness >= FOCUS_THRESHOLD;
 
     frame.classList.toggle("focused", focused);
 
@@ -209,10 +221,11 @@ function startFocusDetection(video: HTMLVideoElement): void {
     }
 
     if (
-      focusedFrames >= 6 &&
+      focusedFrames >= REQUIRED_FOCUSED_FRAMES &&
       !captureInProgress &&
       !waitingForRetry
     ) {
+      console.log("SCAN: focus confirmed, starting OCR sequence");
       captureInProgress = true;
       void captureSequence(video);
     }
@@ -292,15 +305,21 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
 
       const canvas = cameraService.capture(video);
       const result = await ocrService.recognize(canvas);
+      const parsed = parseBloodPressureText(result.text);
 
-      readings.push(
-        parseBloodPressureText(result.text),
-      );
+      console.log("SCAN: OCR reading", index + 1, result.text);
+      console.log("SCAN: parsed reading", index + 1, parsed);
+
+      readings.push(parsed);
     }
 
     const consensus = findConsensus(readings);
 
+    console.log("SCAN: OCR readings", readings);
+    console.log("SCAN: OCR consensus", consensus);
+
     if (!consensus) {
+      console.warn("SCAN: no OCR consensus after three readings");
       waitingForRetry = true;
       resetScanResult();
       showMessage(
