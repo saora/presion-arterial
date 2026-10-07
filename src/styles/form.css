@@ -61,6 +61,8 @@
 }
 
 .form-row .form-field {
+  min-width: 0;
+
   gap: 6px;
 }
 
@@ -72,7 +74,19 @@
 }
 
 .form-row .form-field input {
+  width: 100%;
+
+  min-width: 0;
+  max-width: 100%;
+
+  min-height: 48px;
+
   padding: 11px 12px;
+
+  line-height: 1.2;
+
+  -webkit-appearance: none;
+  appearance: none;
 
   background: #f5f5f7;
 
@@ -370,6 +384,8 @@
   }
 
   .form-row {
+    grid-template-columns: 1fr;
+
     gap: 8px;
   }
 
