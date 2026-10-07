@@ -1,5 +1,8 @@
 import type { BloodPressureRecord } from "../../types/blood-pressure";
-import { getBloodPressureRecords } from "../../services/api";
+import {
+  deleteBloodPressureRecord,
+  getBloodPressureRecords,
+} from "../../services/api";
 import historyTemplate from "./history.html?raw";
 
 import {
@@ -188,6 +191,53 @@ function renderHistory(): void {
         ),
       )
       .join("");
+
+  initializeDeleteButtons();
+}
+
+function initializeDeleteButtons(): void {
+  const deleteButtons =
+    document.querySelectorAll<HTMLButtonElement>(
+      ".history-delete-button",
+    );
+
+  deleteButtons.forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.stopPropagation();
+
+      const id = Number(button.dataset.recordId);
+
+      if (!Number.isInteger(id)) {
+        return;
+      }
+
+      const confirmed = window.confirm(
+        "¿Eliminar esta medición?",
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        await deleteBloodPressureRecord(id);
+        await loadHistory();
+      } catch (error) {
+        console.error(
+          "HISTORY: delete error",
+          error,
+        );
+
+        button.disabled = false;
+
+        window.alert(
+          "No se pudo eliminar la medición.",
+        );
+      }
+    });
+  });
 }
 
 

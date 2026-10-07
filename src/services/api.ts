@@ -66,3 +66,34 @@ export async function getBloodPressureRecords(): Promise<BloodPressureRecord[]> 
 
   return result.records;
 }
+
+export async function deleteBloodPressureRecord(
+  id: number,
+): Promise<void> {
+  const response = await fetch(
+    API_URL,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8',
+      },
+      body: JSON.stringify({
+        action: 'deleteRecord',
+        id,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(
+      result.message ||
+        'No se pudo eliminar la medición.',
+    );
+  }
+}

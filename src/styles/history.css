@@ -225,6 +225,54 @@
   transform: scale(0.99);
 }
 
+.history-delete-button {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  margin: 10px 0 0 auto;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #8e8e93;
+
+  cursor: pointer;
+}
+
+.history-delete-button:hover {
+  background: rgba(255, 59, 48, 0.1);
+
+  color: #ff3b30;
+}
+
+.history-delete-button:focus-visible {
+  outline: 2px solid #3b72ff;
+  outline-offset: 2px;
+}
+
+.history-delete-button:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.history-delete-button svg {
+  width: 16px;
+  height: 16px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .history-card-summary {
   position: relative;
 

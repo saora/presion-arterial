@@ -1,4 +1,5 @@
 export interface BloodPressureRecord {
+  id?: number;
   fecha: string;
   hora: string;
   sistolica: number;

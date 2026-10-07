@@ -140,6 +140,7 @@ export function historyRecordTemplate(
   `;
 
   const optionalDetails = renderOptionalDetails(record);
+  const deleteButton = renderDeleteButton(record);
 
   if (optionalDetails) {
     return `
@@ -151,6 +152,8 @@ export function historyRecordTemplate(
 
         ${optionalDetails}
 
+        ${deleteButton}
+
       </details>
     `;
   }
@@ -158,7 +161,28 @@ export function historyRecordTemplate(
   return `
     <article class="${cardClass}">
       ${recordContent}
+      ${deleteButton}
     </article>
+  `;
+}
+
+function renderDeleteButton(record: BloodPressureRecord): string {
+  if (record.id === undefined) {
+    return "";
+  }
+
+  return `
+    <button
+      type="button"
+      class="history-delete-button"
+      data-record-id="${record.id}"
+      aria-label="Eliminar medición"
+      title="Eliminar medición"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+      </svg>
+    </button>
   `;
 }
 
