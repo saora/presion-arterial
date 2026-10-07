@@ -1,0 +1,54 @@
+<section id="page-history" class="page" hidden>
+
+  <div class="page-header">
+    <h2>Historial</h2>
+    <p>Consulta tus mediciones anteriores.</p>
+  </div>
+
+
+  <div class="history-filters">
+
+    <button
+      type="button"
+      class="history-filter active"
+      data-period="all"
+    >
+      Todas
+    </button>
+
+    <button
+      type="button"
+      class="history-filter"
+      data-period="day"
+    >
+      Día
+    </button>
+
+    <button
+      type="button"
+      class="history-filter"
+      data-period="week"
+    >
+      Semana
+    </button>
+
+    <button
+      type="button"
+      class="history-filter"
+      data-period="month"
+    >
+      Mes
+    </button>
+
+  </div>
+
+  <div
+    id="historyContent"
+    class="history-content"
+  >
+    <div class="history-loading">
+      Cargando mediciones...
+    </div>
+  </div>
+
+</section>

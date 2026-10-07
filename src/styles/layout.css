@@ -8,11 +8,11 @@
 
 .app-content {
   width: 100%;
-  max-width: 600px;
+  max-width: 680px;
 
   margin: 0 auto;
 
-  padding: 16px;
+  padding: 24px 20px;
 }
 
 .page {

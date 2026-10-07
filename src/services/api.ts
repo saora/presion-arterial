@@ -3,9 +3,7 @@ import type { BloodPressureRecord } from '../types/blood-pressure';
 const API_URL =
   'https://script.google.com/macros/s/AKfycbw8Bu-luEVTRc1yQlXSOj2YlgNh1QIEzhQ8dT1jrVCLjuATyeq2-zmeHFIAI9eh_3QNQg/exec';
 
-export async function saveBloodPressureRecord(
-  record: BloodPressureRecord
-): Promise<void> {
+export async function saveBloodPressureRecord(record: BloodPressureRecord): Promise<void> {
 
   const response =
     await fetch(
@@ -42,9 +40,7 @@ export async function saveBloodPressureRecord(
   }
 }
 
-export async function getBloodPressureRecords(): Promise<
-  BloodPressureRecord[]
-> {
+export async function getBloodPressureRecords(): Promise<BloodPressureRecord[]> {
 
   const url =
     `${API_URL}?action=getRecords`;

@@ -7,7 +7,7 @@ export interface BloodPressureRecord {
   brazo: string;
   posicion: string;
   reposo: number;
-  medicacion: string;
+  medicacion?: string;
   sintomas: string;
   observaciones: string;
 }

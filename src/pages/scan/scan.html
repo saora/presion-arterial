@@ -1,0 +1,114 @@
+<section
+  id="page-scan"
+  class="page"
+  hidden
+>
+
+  <div class="page-header">
+
+    <h2>Escanear medición</h2>
+
+    <p>
+      Coloca la pantalla del baumanómetro frente a la cámara.
+    </p>
+
+  </div>
+
+  <div class="scan-container">
+
+    <div class="camera-container">
+
+      <video
+        id="cameraVideo"
+        class="camera-video"
+        autoplay
+        playsinline
+        muted
+      ></video>
+
+      <div class="camera-frame">
+
+        <div class="camera-frame-corner top-left"></div>
+        <div class="camera-frame-corner top-right"></div>
+        <div class="camera-frame-corner bottom-left"></div>
+        <div class="camera-frame-corner bottom-right"></div>
+
+      </div>
+
+    </div>
+
+    <div
+      id="scanMessage"
+      class="scan-message"
+      aria-live="polite"
+    >
+      Presiona iniciar para activar la cámara.
+    </div>
+
+    <div class="scan-actions">
+
+      <button
+        type="button"
+        id="startCameraButton"
+        class="primary-button"
+      >
+        Iniciar cámara
+      </button>
+
+      <button
+        type="button"
+        id="captureButton"
+        class="primary-button"
+        hidden
+      >
+        Capturar medición
+      </button>
+
+      <button
+        type="button"
+        id="stopCameraButton"
+        class="secondary-button"
+        hidden
+      >
+        Detener cámara
+      </button>
+
+    </div>
+
+    <div
+      id="capturePreview"
+      class="capture-preview"
+      hidden
+    >
+
+      <h3>
+        Captura
+      </h3>
+
+      <canvas
+        id="captureCanvas"
+        class="capture-canvas"
+      ></canvas>
+
+    </div>
+
+    <div
+      id="ocrResult"
+      class="ocr-result"
+      hidden
+    >
+
+      <h3>
+        Texto detectado
+      </h3>
+
+      <pre
+        id="ocrText"
+        class="ocr-text"
+      ></pre>
+
+    </div>
+
+  </div>
+
+</section>

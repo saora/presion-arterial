@@ -1,22 +1,25 @@
 .app-header {
   width: 100%;
-  max-width: 600px;
+  max-width: 680px;
 
   margin: 0 auto;
 
-  padding: 24px 20px 12px;
+  padding: 28px 20px 16px;
 }
 
 .app-header h1 {
   margin: 0;
 
-  font-size: 28px;
+  font-size: 30px;
+  line-height: 1.15;
   font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .app-header p {
-  margin: 4px 0 0;
+  margin: 8px 0 0;
 
   font-size: 15px;
+  line-height: 1.4;
   color: #6e6e73;
 }

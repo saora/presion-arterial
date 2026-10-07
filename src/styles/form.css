@@ -1,19 +1,26 @@
+/* =========================
+   PAGE HEADER
+   ========================= */
+
 .page-header {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .page-header h2 {
   margin: 0;
 
   font-size: 24px;
+  line-height: 1.2;
   font-weight: 700;
+  letter-spacing: -0.3px;
 }
 
 .page-header p {
-  margin: 6px 0 0;
+  margin: 7px 0 0;
 
   color: #6e6e73;
   font-size: 15px;
+  line-height: 1.4;
 }
 
 
@@ -25,8 +32,23 @@
   display: flex;
   flex-direction: column;
 
-  gap: 18px;
+  gap: 20px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.05);
 }
+
+
+/* =========================
+   DATE / TIME
+   ========================= */
 
 .form-row {
   display: grid;
@@ -34,7 +56,41 @@
   grid-template-columns: 1fr 1fr;
 
   gap: 12px;
+
+  padding-bottom: 4px;
 }
+
+.form-row .form-field {
+  gap: 6px;
+}
+
+.form-row .form-field label {
+  font-size: 12px;
+  font-weight: 500;
+
+  color: #8e8e93;
+}
+
+.form-row .form-field input {
+  padding: 11px 12px;
+
+  background: #f5f5f7;
+
+  border-color: transparent;
+
+  font-size: 14px;
+}
+
+.form-row .form-field input:focus {
+  background: #ffffff;
+
+  border-color: #007aff;
+}
+
+
+/* =========================
+   FORM FIELDS
+   ========================= */
 
 .form-field {
   display: flex;
@@ -67,8 +123,14 @@
   outline: none;
 
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: #8e8e93;
 }
 
 .form-field input:focus,
@@ -86,6 +148,36 @@
 
 
 /* =========================
+   SELECT
+   ========================= */
+
+.form-field select {
+  appearance: none;
+  -webkit-appearance: none;
+
+  background-color: #ffffff;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, #8e8e93 50%),
+    linear-gradient(135deg, #8e8e93 50%, transparent 50%);
+
+  background-position:
+    calc(100% - 16px) 50%,
+    calc(100% - 11px) 50%;
+
+  background-size:
+    5px 5px,
+    5px 5px;
+
+  background-repeat: no-repeat;
+
+  padding-right: 34px;
+
+  cursor: pointer;
+}
+
+
+/* =========================
    MEASUREMENT
    ========================= */
 
@@ -96,18 +188,36 @@
 
   gap: 10px;
 
-  padding: 16px;
+  padding: 14px;
 
-  background: #ffffff;
+  background: #f5f5f7;
+
+  border: 1px solid rgba(0, 0, 0, 0.05);
 
   border-radius: 18px;
-
-  box-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .measurement-card .form-field {
   min-width: 0;
+
+  gap: 6px;
+}
+
+.measurement-card .form-field label {
+  font-size: 13px;
+
+  text-align: center;
+}
+
+.measurement-card .form-field input {
+  padding: 14px 8px;
+
+  font-size: 20px;
+  font-weight: 600;
+
+  text-align: center;
+
+  border-radius: 12px;
 }
 
 .input-with-unit {
@@ -115,18 +225,22 @@
 }
 
 .input-with-unit input {
-  padding-right: 50px;
+  padding-right: 8px;
 }
 
 .input-with-unit span {
-  position: absolute;
+  display: block;
 
-  right: 12px;
-  top: 50%;
+  margin-top: 5px;
 
-  transform: translateY(-50%);
+  position: static;
 
-  font-size: 12px;
+  transform: none;
+
+  font-size: 11px;
+  line-height: 1;
+
+  text-align: center;
 
   color: #8e8e93;
 
@@ -135,37 +249,155 @@
 
 
 /* =========================
-   BUTTON
+   PRIMARY BUTTON
    ========================= */
 
 .primary-button {
   width: 100%;
 
+  min-height: 50px;
+
   border: 0;
   border-radius: 14px;
 
-  padding: 15px;
+  padding: 14px 16px;
 
   background: #007aff;
   color: #ffffff;
 
   font-size: 16px;
   font-weight: 600;
+
+  box-shadow:
+    0 2px 6px rgba(0, 122, 255, 0.18);
+
+  transition:
+    transform 0.1s ease,
+    opacity 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.primary-button:active {
+.primary-button:hover:not(:disabled) {
+  opacity: 0.94;
+
+  box-shadow:
+    0 4px 10px rgba(0, 122, 255, 0.22);
+}
+
+.primary-button:active:not(:disabled) {
   transform: scale(0.98);
+
+  box-shadow:
+    0 2px 5px rgba(0, 122, 255, 0.16);
 }
 
 
 /* =========================
-   MESSAGE
+   DISABLED BUTTON
+   ========================= */
+
+.primary-button:disabled {
+  background: #d1d1d6;
+  color: #8e8e93;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+
+  opacity: 1;
+}
+
+
+/* =========================
+   FORM MESSAGE / TOAST
    ========================= */
 
 .form-message {
-  min-height: 20px;
+  position: fixed;
+
+  left: 50%;
+  bottom: 90px;
+
+  z-index: 200;
+
+  max-width: calc(100% - 40px);
+
+  padding: 12px 18px;
+
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  color: #1d1d1f;
 
   font-size: 14px;
+  font-weight: 600;
 
   text-align: center;
+
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.12);
+
+  transform: translate(-50%, 10px);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.form-message:not(:empty) {
+  transform: translate(-50%, 0);
+
+  opacity: 1;
+}
+
+
+/* =========================
+   SMALL SCREENS
+   ========================= */
+
+@media (max-width: 380px) {
+  .blood-pressure-form {
+    padding: 16px;
+
+    gap: 18px;
+  }
+
+  .form-row {
+    gap: 8px;
+  }
+
+  .form-row .form-field input {
+    padding: 10px;
+  }
+
+  .measurement-card {
+    gap: 6px;
+
+    padding: 12px 8px;
+  }
+
+  .measurement-card .form-field label {
+    font-size: 12px;
+  }
+
+  .measurement-card .form-field input {
+    padding: 12px 4px;
+
+    font-size: 18px;
+  }
+
+  .form-message {
+    bottom: 86px;
+
+    max-width: calc(100% - 28px);
+
+    padding: 11px 14px;
+  }
 }

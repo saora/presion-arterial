@@ -23,6 +23,7 @@ body {
   color: #1d1d1f;
 
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
@@ -34,4 +35,8 @@ textarea {
 
 button {
   cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
 }

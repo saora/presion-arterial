@@ -18,10 +18,8 @@ class CameraServiceImpl implements CameraService {
 
     this.stop();
 
-    this.stream =
-      await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: {
+    this.stream =  await navigator.mediaDevices.getUserMedia({
+        video: {  facingMode: {
             ideal: 'environment'
           }
         },
@@ -46,9 +44,7 @@ class CameraServiceImpl implements CameraService {
     this.stream = null;
   }
 
-  capture(
-    video: HTMLVideoElement
-  ): HTMLCanvasElement {
+  capture( video: HTMLVideoElement): HTMLCanvasElement {
 
     if (
       video.videoWidth === 0 ||
@@ -64,32 +60,18 @@ class CameraServiceImpl implements CameraService {
         'canvas'
       );
 
-    canvas.width =
-      video.videoWidth;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-    canvas.height =
-      video.videoHeight;
-
-    const context =
-      canvas.getContext('2d');
+    const context = canvas.getContext('2d');
 
     if (!context) {
-      throw new Error(
-        'No se pudo crear el contexto de la cámara.'
-      );
+      throw new Error( 'No se pudo crear el contexto de la cámara.' );
     }
 
-    context.drawImage(
-      video,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
     return canvas;
   }
 }
 
-export const cameraService =
-  new CameraServiceImpl();
+export const cameraService = new CameraServiceImpl();
