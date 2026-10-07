@@ -230,7 +230,7 @@ function buildStatisticsChartSVG(
       const y = yToSvg(tick);
       return `
         <line x1="${paddingLeft}" x2="${width - paddingRight}" y1="${y}" y2="${y}" stroke="rgba(148,163,184,0.18)" stroke-width="1" />
-        <text x="${paddingLeft - 8}" y="${y + 4}" text-anchor="end" fill="#8e8e93" font-size="10" font-weight="500" font-family="SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif">${tick}</text>
+        <text x="${paddingLeft - 8}" y="${y + 4}" text-anchor="end" fill="#8e8e93" font-size="10" font-weight="500" font-family="Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif">${tick}</text>
       `;
     })
     .join("");
@@ -246,7 +246,7 @@ function buildStatisticsChartSVG(
               month: "short",
             }).format(entry.date);
 
-      return `<text x="${x}" y="${height - 8}" text-anchor="middle" fill="#8e8e93" font-size="10" font-weight="500" font-family="SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif">${label}</text>`;
+      return `<text x="${x}" y="${height - 8}" text-anchor="middle" fill="#8e8e93" font-size="10" font-weight="500" font-family="Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif">${label}</text>`;
     })
     .join("");
 

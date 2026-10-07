@@ -123,10 +123,11 @@
 }
 
 .summary-card strong {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
   font-size: 38px;
   line-height: 1;
-  letter-spacing: -0.08em;
-  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #1d1d1f;
 }
@@ -227,6 +228,7 @@
 
   width: 58px;
   height: 58px;
+  padding: 0;
 
   border: 0;
   border-radius: 50%;
@@ -234,9 +236,12 @@
   background: linear-gradient(180deg, #3b72ff 0%, #2f63de 100%);
   color: #ffffff;
 
-  font-size: 36px;
+  font-size: 34px;
   line-height: 1;
   font-weight: 300;
+  text-align: center;
+  letter-spacing: -0.08em;
+  transform: translateY(-1px);
 
   box-shadow: 0 10px 20px rgba(59, 114, 255, 0.28);
 

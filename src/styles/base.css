@@ -12,10 +12,10 @@ body {
 
 body {
   font-family:
+    "Inter",
     -apple-system,
     BlinkMacSystemFont,
-    "SF Pro Display",
-    "SF Pro Text",
+    system-ui,
     "Segoe UI",
     sans-serif;
 
