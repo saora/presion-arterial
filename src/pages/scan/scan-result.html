@@ -1,0 +1,105 @@
+<section
+  id="scanResult"
+  class="scan-result"
+  aria-live="polite"
+>
+  <div class="scan-result-header">
+    <div>
+      <span class="scan-result-eyebrow">Lectura detectada</span>
+      <h3>Presión arterial</h3>
+    </div>
+
+    <span class="scan-result-status">Revisa los valores</span>
+  </div>
+
+  <div class="scan-reading">
+    <label class="scan-reading-field">
+      <span>Sistólica</span>
+      <input
+        type="number"
+        id="scanSystolic"
+        inputmode="numeric"
+        min="50"
+        max="250"
+        maxlength="3"
+        placeholder="--"
+      />
+    </label>
+
+    <span class="scan-reading-separator">/</span>
+
+    <label class="scan-reading-field">
+      <span>Diastólica</span>
+      <input
+        type="number"
+        id="scanDiastolic"
+        inputmode="numeric"
+        min="30"
+        max="150"
+        maxlength="3"
+        placeholder="--"
+      />
+    </label>
+
+    <div class="scan-reading-unit">mmHg</div>
+  </div>
+
+  <div class="scan-meta-row">
+    <label class="scan-pulse-field">
+      <span>Pulso</span>
+      <span class="scan-pulse-input">
+        <input
+          type="number"
+          id="scanPulse"
+          inputmode="numeric"
+          min="30"
+          max="220"
+          maxlength="3"
+          placeholder="--"
+        />
+        <span>lpm</span>
+      </span>
+    </label>
+
+    <fieldset class="scan-arm-field">
+      <legend>Brazo</legend>
+
+      <div class="scan-arm-toggle">
+        <input
+          type="radio"
+          id="scanArmLeft"
+          name="scanArm"
+          value="Izquierdo"
+          checked
+        />
+        <label for="scanArmLeft">Izq.</label>
+
+        <input
+          type="radio"
+          id="scanArmRight"
+          name="scanArm"
+          value="Derecho"
+        />
+        <label for="scanArmRight">Der.</label>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="scan-result-actions">
+    <button
+      type="button"
+      id="confirmScanButton"
+      class="secondary-button"
+    >
+      Confirmar
+    </button>
+
+    <button
+      type="button"
+      id="retryScanButton"
+      class="primary-button"
+    >
+      Intentar de nuevo
+    </button>
+  </div>
+</section>

@@ -344,8 +344,16 @@ function sortRecords(
 function getRecordDate(
   record: BloodPressureRecord,
 ): Date {
+  const [hours = "0", minutes = "0"] =
+    record.hora.split(":");
+
+  const normalizedTime = [
+    hours.padStart(2, "0"),
+    minutes.padStart(2, "0"),
+  ].join(":");
+
   const date = new Date(
-    `${record.fecha}T${record.hora}`,
+    `${record.fecha}T${normalizedTime}:00`,
   );
 
   if (Number.isNaN(date.getTime())) {

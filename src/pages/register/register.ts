@@ -8,6 +8,37 @@ export function renderRegisterPage(): string {
   return registerTemplate;
 }
 
+export function populateRegisterMeasurement(
+  sistolica: number,
+  diastolica: number,
+  pulso: number,
+): void {
+  setInputValue("sistolica", sistolica);
+  setInputValue("diastolica", diastolica);
+  setInputValue("pulso", pulso);
+
+  const form = document.getElementById(
+    "bloodPressureForm",
+  ) as HTMLFormElement | null;
+  const saveButton = document.getElementById(
+    "saveButton",
+  ) as HTMLButtonElement | null;
+
+  if (form && saveButton) {
+    updateSaveButtonState(form, saveButton);
+  }
+}
+
+function setInputValue(id: string, value: number): void {
+  const input = document.getElementById(
+    id,
+  ) as HTMLInputElement | null;
+
+  if (input) {
+    input.value = String(value);
+  }
+}
+
 export function initializeRegisterPage(): void {
   const form = document.getElementById(
     "bloodPressureForm",

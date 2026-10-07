@@ -37,33 +37,17 @@
 
     </div>
 
+    {{SCAN_RESULT}}
+
     <div
       id="scanMessage"
       class="scan-message"
       aria-live="polite"
     >
-      Presiona iniciar para activar la cámara.
+      Coloca la pantalla dentro del recuadro.
     </div>
 
     <div class="scan-actions">
-
-      <button
-        type="button"
-        id="startCameraButton"
-        class="primary-button"
-      >
-        Iniciar cámara
-      </button>
-
-      <button
-        type="button"
-        id="captureButton"
-        class="primary-button"
-        hidden
-      >
-        Capturar medición
-      </button>
-
       <button
         type="button"
         id="stopCameraButton"
@@ -72,40 +56,6 @@
       >
         Detener cámara
       </button>
-
-    </div>
-
-    <div
-      id="capturePreview"
-      class="capture-preview"
-      hidden
-    >
-
-      <h3>
-        Captura
-      </h3>
-
-      <canvas
-        id="captureCanvas"
-        class="capture-canvas"
-      ></canvas>
-
-    </div>
-
-    <div
-      id="ocrResult"
-      class="ocr-result"
-      hidden
-    >
-
-      <h3>
-        Texto detectado
-      </h3>
-
-      <pre
-        id="ocrText"
-        class="ocr-text"
-      ></pre>
 
     </div>
 

@@ -1,20 +1,30 @@
 import { cameraService } from "../../services/camera";
 import { ocrService } from "../../services/ocr";
+import type { BloodPressureRecord } from "../../types/blood-pressure";
+import { saveBloodPressureRecord } from "../../services/api";
+import {
+  parseBloodPressureText,
+  type ParsedBloodPressure,
+} from "./blood-pressure-parser";
 import scanTemplate from "./scan.html?raw";
+import scanResultTemplate from "./scan-result.html?raw";
+
+let scanInitialized = false;
+let scanActive = false;
+let captureInProgress = false;
+let waitingForRetry = false;
+let focusedFrames = 0;
+let lastFocusCheck = 0;
+let focusAnimationFrame: number | undefined;
 
 export function renderScanPage(): string {
-  return scanTemplate;
+  return scanTemplate.replace(
+    "{{SCAN_RESULT}}",
+    scanResultTemplate,
+  );
 }
 
 export function initializeScanPage(): void {
-  const startButton = document.getElementById(
-    "startCameraButton",
-  ) as HTMLButtonElement | null;
-
-  const captureButton = document.getElementById(
-    "captureButton",
-  ) as HTMLButtonElement | null;
-
   const stopButton = document.getElementById(
     "stopCameraButton",
   ) as HTMLButtonElement | null;
@@ -23,35 +33,101 @@ export function initializeScanPage(): void {
     "cameraVideo",
   ) as HTMLVideoElement | null;
 
-  if (!startButton || !captureButton || !stopButton || !video) {
+  const confirmButton = document.getElementById(
+    "confirmScanButton",
+  ) as HTMLButtonElement | null;
+
+  const retryButton = document.getElementById(
+    "retryScanButton",
+  ) as HTMLButtonElement | null;
+
+  if (!stopButton || !video || !confirmButton || !retryButton) {
     console.error("SCAN: camera elements not found");
 
     return;
   }
 
-  startButton.addEventListener("click", () => {
-    startCamera(video, startButton, captureButton, stopButton);
-  });
-
-  captureButton.addEventListener("click", () => {
-    captureImage(video);
-  });
-
   stopButton.addEventListener("click", () => {
-    stopCamera(startButton, captureButton, stopButton);
+    stopCamera(stopButton);
   });
+
+  ["scanSystolic", "scanDiastolic", "scanPulse"].forEach(
+    (fieldId) => {
+      const field = document.getElementById(
+        fieldId,
+      ) as HTMLInputElement | null;
+
+      field?.addEventListener("input", () => {
+        field.value = field.value
+          .replace(/\D/g, "")
+          .slice(0, 3);
+
+        updateConfirmButtonState();
+      });
+    },
+  );
+
+  confirmButton.addEventListener(
+    "click",
+    confirmScanResult,
+  );
+
+  retryButton.addEventListener(
+    "click",
+    restartScanCapture,
+  );
+
+  updateConfirmButtonState();
+
+  scanInitialized = true;
 
   console.log("SCAN: initialized");
 }
 
+export function setScanPageActive(active: boolean): void {
+  if (!scanInitialized) {
+    return;
+  }
+
+  const video = document.getElementById(
+    "cameraVideo",
+  ) as HTMLVideoElement | null;
+
+  const stopButton = document.getElementById(
+    "stopCameraButton",
+  ) as HTMLButtonElement | null;
+
+  if (!video || !stopButton) {
+    return;
+  }
+
+  if (!active) {
+    scanActive = false;
+    stopCamera(stopButton);
+    return;
+  }
+
+  if (scanActive) {
+    return;
+  }
+
+  scanActive = true;
+  captureInProgress = false;
+  focusedFrames = 0;
+  waitingForRetry = false;
+  resetScanResult();
+  void startCamera(video, stopButton);
+}
+
 async function startCamera(
   video: HTMLVideoElement,
-  startButton: HTMLButtonElement,
-  captureButton: HTMLButtonElement,
   stopButton: HTMLButtonElement,
 ): Promise<void> {
   try {
-    showMessage("Solicitando acceso a la cámara...");
+    showMessage(
+      "Solicitando acceso a la cámara...",
+      "processing",
+    );
 
     const stream = await cameraService.start();
 
@@ -59,13 +135,13 @@ async function startCamera(
 
     await video.play();
 
-    startButton.hidden = true;
-
-    captureButton.hidden = false;
-
     stopButton.hidden = false;
 
-    showMessage("Coloca la pantalla del baumanómetro dentro del marco.");
+    showMessage(
+      "Enfocando la pantalla dentro del recuadro...",
+      "focusing",
+    );
+    startFocusDetection(video);
   } catch (error) {
     console.error("SCAN: camera error", error);
 
@@ -73,69 +149,382 @@ async function startCamera(
   }
 }
 
-async function captureImage(video: HTMLVideoElement): Promise<void> {
-  try {
-    showMessage("Procesando imagen...");
-
-    const canvas = cameraService.capture(video);
-
-    const preview = document.getElementById("capturePreview");
-
-    const previewCanvas = document.getElementById(
-      "captureCanvas",
-    ) as HTMLCanvasElement | null;
-
-    if (!preview || !previewCanvas) {
-      return;
-    }
-
-    const context = previewCanvas.getContext("2d");
-
-    if (!context) {
-      return;
-    }
-
-    previewCanvas.width = canvas.width;
-
-    previewCanvas.height = canvas.height;
-
-    context.drawImage(canvas, 0, 0);
-
-    preview.hidden = false;
-
-    showMessage("Leyendo la pantalla...");
-
-    const result = await ocrService.recognize(canvas);
-
-    showOcrResult(result.text);
-
-    showMessage("Lectura completada.");
-  } catch (error) {
-    console.error("SCAN: OCR error", error);
-
-    showMessage("No se pudo leer la medición.");
+function startFocusDetection(video: HTMLVideoElement): void {
+  if (focusAnimationFrame !== undefined) {
+    window.cancelAnimationFrame(focusAnimationFrame);
   }
-}
 
-function showOcrResult(text: string): void {
-  const container = document.getElementById("ocrResult");
+  const frame = document.querySelector<HTMLElement>(
+    ".camera-frame",
+  );
 
-  const textElement = document.getElementById("ocrText");
-
-  if (!container || !textElement) {
+  if (!frame) {
     return;
   }
 
-  textElement.textContent = text || "No se detectó texto.";
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d", {
+    willReadFrequently: true,
+  });
 
-  container.hidden = false;
+  if (!context) {
+    return;
+  }
+
+  canvas.width = 160;
+  canvas.height = 120;
+  focusedFrames = 0;
+  lastFocusCheck = 0;
+
+  const checkFocus = (timestamp: number): void => {
+    if (!scanActive || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      return;
+    }
+
+    focusAnimationFrame = window.requestAnimationFrame(checkFocus);
+
+    if (timestamp - lastFocusCheck < 120) {
+      return;
+    }
+
+    lastFocusCheck = timestamp;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = context.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
+
+    const sharpness = calculateSharpness(imageData);
+    const focused = sharpness >= 18;
+
+    frame.classList.toggle("focused", focused);
+
+    if (focused) {
+      focusedFrames += 1;
+    } else {
+      focusedFrames = 0;
+    }
+
+    if (
+      focusedFrames >= 6 &&
+      !captureInProgress &&
+      !waitingForRetry
+    ) {
+      captureInProgress = true;
+      void captureSequence(video);
+    }
+  };
+
+  focusAnimationFrame = window.requestAnimationFrame(checkFocus);
 }
 
-function stopCamera(
-  startButton: HTMLButtonElement,
-  captureButton: HTMLButtonElement,
-  stopButton: HTMLButtonElement,
+function restartScanCapture(): void {
+  const video = document.getElementById(
+    "cameraVideo",
+  ) as HTMLVideoElement | null;
+
+  const stopButton = document.getElementById(
+    "stopCameraButton",
+  ) as HTMLButtonElement | null;
+
+  if (!video || !stopButton) {
+    return;
+  }
+
+  resetScanResult();
+  focusedFrames = 0;
+  captureInProgress = false;
+  waitingForRetry = false;
+  scanActive = true;
+
+  if (!video.srcObject) {
+    void startCamera(video, stopButton);
+    return;
+  }
+
+  showMessage(
+    "Enfocando la pantalla dentro del recuadro...",
+    "focusing",
+  );
+  startFocusDetection(video);
+}
+
+function calculateSharpness(imageData: ImageData): number {
+  const { data, width, height } = imageData;
+  let differenceTotal = 0;
+  let samples = 0;
+
+  for (let y = 1; y < height; y += 2) {
+    for (let x = 1; x < width; x += 2) {
+      const index = (y * width + x) * 4;
+      const previousIndex = (y * width + x - 1) * 4;
+
+      const brightness =
+        (data[index] + data[index + 1] + data[index + 2]) / 3;
+      const previousBrightness =
+        (data[previousIndex] +
+          data[previousIndex + 1] +
+          data[previousIndex + 2]) /
+        3;
+
+      differenceTotal += Math.abs(
+        brightness - previousBrightness,
+      );
+      samples += 1;
+    }
+  }
+
+  return samples > 0 ? differenceTotal / samples : 0;
+}
+
+async function captureSequence(video: HTMLVideoElement): Promise<void> {
+  try {
+    const readings: ParsedBloodPressure[] = [];
+
+    for (let index = 0; index < 3; index += 1) {
+      showMessage(
+        `Leyendo la pantalla... ${index + 1}/3`,
+        "processing",
+      );
+
+      const canvas = cameraService.capture(video);
+      const result = await ocrService.recognize(canvas);
+
+      readings.push(
+        parseBloodPressureText(result.text),
+      );
+    }
+
+    const consensus = findConsensus(readings);
+
+    if (!consensus) {
+      waitingForRetry = true;
+      resetScanResult();
+      showMessage(
+        "No se pudo confirmar la lectura. Pulsa Intentar de nuevo.",
+      );
+      return;
+    }
+
+    showParsedScanResult(consensus);
+    showMessage("Lectura confirmada. Revisa los valores.");
+  } catch (error) {
+    console.error("SCAN: OCR error", error);
+
+    waitingForRetry = true;
+    resetScanResult();
+    showMessage("No se pudo leer la medición.");
+  } finally {
+    captureInProgress = false;
+  }
+}
+
+function findConsensus(
+  readings: ParsedBloodPressure[],
+): ParsedBloodPressure | null {
+  const counts = new Map<string, {
+    reading: ParsedBloodPressure;
+    count: number;
+  }>();
+
+  readings.forEach((reading) => {
+    if (
+      reading.sistolica === null ||
+      reading.diastolica === null ||
+      reading.pulso === null
+    ) {
+      return;
+    }
+
+    const key = [
+      reading.sistolica,
+      reading.diastolica,
+      reading.pulso,
+    ].join("/");
+    const current = counts.get(key);
+
+    counts.set(key, {
+      reading,
+      count: (current?.count ?? 0) + 1,
+    });
+  });
+
+  for (const result of counts.values()) {
+    if (result.count >= 2) {
+      return result.reading;
+    }
+  }
+
+  return null;
+}
+
+function showParsedScanResult(
+  parsed: ParsedBloodPressure,
 ): void {
+  const container = document.getElementById("scanResult");
+
+  if (!container) {
+    return;
+  }
+
+  setInputValue("scanSystolic", parsed.sistolica);
+  setInputValue("scanDiastolic", parsed.diastolica);
+  setInputValue("scanPulse", parsed.pulso);
+
+  container.hidden = false;
+  waitingForRetry = true;
+  updateConfirmButtonState();
+}
+
+function setInputValue(
+  id: string,
+  value: number | null,
+): void {
+  const input = document.getElementById(
+    id,
+  ) as HTMLInputElement | null;
+
+  if (input) {
+    input.value = value === null ? "" : String(value);
+  }
+}
+
+function updateConfirmButtonState(): void {
+  const confirmButton = document.getElementById(
+    "confirmScanButton",
+  ) as HTMLButtonElement | null;
+
+  if (!confirmButton) {
+    return;
+  }
+
+  const complete = [
+    "scanSystolic",
+    "scanDiastolic",
+    "scanPulse",
+  ].every((id) => {
+    const input = document.getElementById(
+      id,
+    ) as HTMLInputElement | null;
+
+    return Boolean(
+      input?.value &&
+      input.validity.valid,
+    );
+  });
+
+  confirmButton.classList.toggle(
+    "primary-button",
+    complete,
+  );
+  confirmButton.classList.toggle(
+    "secondary-button",
+    !complete,
+  );
+  confirmButton.disabled = !complete;
+}
+
+async function confirmScanResult(): Promise<void> {
+  const inputs = [
+    "scanSystolic",
+    "scanDiastolic",
+    "scanPulse",
+  ].map((id) => {
+    return document.getElementById(
+      id,
+    ) as HTMLInputElement | null;
+  });
+
+  if (
+    inputs.some(
+      (input) =>
+        !input?.value ||
+        !input.validity.valid,
+    )
+  ) {
+    showMessage("Completa los tres valores para confirmar.");
+    return;
+  }
+
+  const confirmButton = document.getElementById(
+    "confirmScanButton",
+  ) as HTMLButtonElement | null;
+
+  if (!confirmButton) {
+    return;
+  }
+
+  const values = inputs.map((input) => Number(input?.value));
+  const selectedArm = document.querySelector<HTMLInputElement>(
+    'input[name="scanArm"]:checked',
+  )?.value ?? "Izquierdo";
+
+  const record: BloodPressureRecord = {
+    fecha: getCurrentDate(),
+    hora: getCurrentTime(),
+    sistolica: values[0],
+    diastolica: values[1],
+    pulso: values[2],
+    brazo: selectedArm,
+    posicion: "",
+    reposo: 0,
+    sintomas: "",
+    observaciones: "",
+  };
+
+  confirmButton.disabled = true;
+  showMessage("Guardando medición...");
+
+  try {
+    await saveBloodPressureRecord(record);
+    resetScanResult();
+    showMessage("Medición guardada correctamente.");
+  } catch (error) {
+    console.error("SCAN: save error", error);
+    showMessage("No se pudo guardar la medición.");
+  } finally {
+    confirmButton.disabled = false;
+  }
+}
+
+function getCurrentDate(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function getCurrentTime(): string {
+  return new Date().toTimeString().substring(0, 5);
+}
+
+
+function resetScanResult(): void {
+  const container = document.getElementById("scanResult");
+
+  if (container) {
+    container.hidden = false;
+  }
+
+  setInputValue("scanSystolic", null);
+  setInputValue("scanDiastolic", null);
+  setInputValue("scanPulse", null);
+  updateConfirmButtonState();
+}
+
+function stopCamera(stopButton: HTMLButtonElement): void {
+  scanActive = false;
+
+  if (focusAnimationFrame !== undefined) {
+    window.cancelAnimationFrame(focusAnimationFrame);
+    focusAnimationFrame = undefined;
+  }
+
   cameraService.stop();
 
   const video = document.getElementById(
@@ -146,16 +535,21 @@ function stopCamera(
     video.srcObject = null;
   }
 
-  startButton.hidden = false;
-
-  captureButton.hidden = true;
+  resetScanResult();
 
   stopButton.hidden = true;
+
+  document.querySelector(".camera-frame")?.classList.remove(
+    "focused",
+  );
 
   showMessage("Cámara detenida.");
 }
 
-function showMessage(message: string): void {
+function showMessage(
+  message: string,
+  status: "idle" | "focusing" | "processing" = "idle",
+): void {
   const element = document.getElementById("scanMessage");
 
   if (!element) {
@@ -163,4 +557,5 @@ function showMessage(message: string): void {
   }
 
   element.textContent = message;
+  element.dataset.status = status;
 }

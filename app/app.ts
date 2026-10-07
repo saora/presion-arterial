@@ -19,7 +19,11 @@ import {
   initializeRegisterPage,
 } from "../src/pages/register/register";
 
-import { renderScanPage, initializeScanPage } from "../src/pages/scan/scan";
+import {
+  renderScanPage,
+  initializeScanPage,
+  setScanPageActive,
+} from "../src/pages/scan/scan";
 
 import {
   renderHistoryPage,
@@ -51,5 +55,7 @@ export function initializeApp(): void {
     if (page === "history") {
       refreshHistoryPage();
     }
+
+    setScanPageActive(page === "scan");
   });
 }
