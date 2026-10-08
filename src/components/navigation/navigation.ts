@@ -117,8 +117,11 @@ function updateBottomNavigation(page: string): void {
 }
 
 function showRegisterChoiceModal(): void {
-  const modal = document.getElementById("registerChoiceModal");
+  showAppModal("registerChoiceModal");
+}
 
+export function showAppModal(modalId: string): void {
+  const modal = document.getElementById(modalId);
   if (!modal) {
     return;
   }
@@ -140,14 +143,25 @@ function showRegisterChoiceModal(): void {
 }
 
 function hideRegisterChoiceModal(): void {
-  const modal = document.getElementById("registerChoiceModal");
+  hideAppModal("registerChoiceModal");
+}
 
+export function hideAppModal(modalId: string): void {
+  const modal = document.getElementById(modalId);
   if (!modal) {
     return;
   }
 
   modal.hidden = true;
   modal.setAttribute("aria-hidden", "true");
+
+  const anotherModalIsOpen =
+    document.querySelector(".register-choice-modal:not([hidden])") !== null;
+
+  if (anotherModalIsOpen) {
+    return;
+  }
+
   const activePage = document.querySelector<HTMLElement>(".page.active");
   updateBottomNavigation(activePage?.id.replace(/^page-/, "") ?? "home");
   document.querySelector(".app")?.classList.remove("register-choice-modal-open");

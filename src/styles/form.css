@@ -375,6 +375,13 @@
   text-align: center;
 }
 
+.delete-record-description {
+  margin: -8px 0 18px;
+  color: #6e6e73;
+  font-size: 14px;
+  text-align: center;
+}
+
 .register-choice-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -410,6 +417,12 @@
   border-color: #007aff;
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 122, 255, 0.22);
+}
+
+.choice-button-danger {
+  background: #d98f9b;
+  border-color: #d98f9b;
+  color: #ffffff;
 }
 
 .modal-close-button {

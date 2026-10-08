@@ -88,6 +88,45 @@
     </div>
   </div>
 
+  <div
+    id="deleteRecordModal"
+    class="register-choice-modal"
+    hidden
+    aria-hidden="true"
+  >
+    <div class="register-choice-backdrop" data-close-delete-modal="true"></div>
+
+    <div
+      class="register-choice-panel"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="deleteRecordTitle"
+      aria-describedby="deleteRecordDescription"
+    >
+      <h3 id="deleteRecordTitle">¿Eliminar medición?</h3>
+      <p id="deleteRecordDescription" class="delete-record-description">
+        Esta acción no se puede deshacer.
+      </p>
+
+      <div class="register-choice-actions">
+        <button
+          type="button"
+          id="cancelDeleteRecord"
+          class="choice-button"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          id="confirmDeleteRecord"
+          class="choice-button choice-button-danger"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+
   {{NAVIGATION}}
 
 </div>

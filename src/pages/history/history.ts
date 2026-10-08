@@ -11,6 +11,7 @@ import {
   historyEmptyTemplate,
   historyRecordTemplate,
 } from "./history-templates";
+import { hideAppModal, showAppModal } from "../../components/navigation/navigation";
 
 
 type HistoryPeriod =
@@ -23,6 +24,7 @@ type HistoryPeriod =
 let allRecords: BloodPressureRecord[] = [];
 
 let currentPeriod: HistoryPeriod = "all";
+let pendingDeleteId: number | undefined;
 
 
 /* =========================
@@ -40,6 +42,7 @@ export function renderHistoryPage(): string {
 
 export function initializeHistoryPage(): void {
   initializeHistoryFilters();
+  initializeDeleteConfirmationModal();
 
   loadHistory();
 
@@ -212,33 +215,56 @@ function initializeDeleteButtons(): void {
         return;
       }
 
-      const confirmed = window.confirm(
-        "¿Eliminar esta medición?",
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      button.disabled = true;
-
-      try {
-        await deleteBloodPressureRecord(id);
-        await loadHistory();
-      } catch (error) {
-        console.error(
-          "HISTORY: delete error",
-          error,
-        );
-
-        button.disabled = false;
-
-        window.alert(
-          "No se pudo eliminar la medición.",
-        );
-      }
+      pendingDeleteId = id;
+      showAppModal("deleteRecordModal");
     });
   });
+
+}
+
+function initializeDeleteConfirmationModal(): void {
+  document
+    .getElementById("cancelDeleteRecord")
+    ?.addEventListener("click", closeDeleteConfirmation);
+
+  document
+    .querySelector<HTMLElement>("[data-close-delete-modal]")
+    ?.addEventListener("click", closeDeleteConfirmation);
+
+  document
+    .getElementById("confirmDeleteRecord")
+    ?.addEventListener("click", () => {
+      void confirmDeleteRecord();
+    });
+}
+
+function closeDeleteConfirmation(): void {
+  pendingDeleteId = undefined;
+  hideAppModal("deleteRecordModal");
+}
+
+async function confirmDeleteRecord(): Promise<void> {
+  const id = pendingDeleteId;
+  const confirmButton = document.getElementById(
+    "confirmDeleteRecord",
+  ) as HTMLButtonElement | null;
+
+  if (id === undefined || !confirmButton) {
+    return;
+  }
+
+  confirmButton.disabled = true;
+
+  try {
+    await deleteBloodPressureRecord(id);
+    closeDeleteConfirmation();
+    await loadHistory();
+  } catch (error) {
+    console.error("HISTORY: delete error", error);
+    window.alert("No se pudo eliminar la medición.");
+  } finally {
+    confirmButton.disabled = false;
+  }
 }
 
 
@@ -362,4 +388,3 @@ function getRecordDate(
 
   return date;
 }
-
