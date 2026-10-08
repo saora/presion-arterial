@@ -4,7 +4,11 @@ import { ocrService } from "../../services/ocr";
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
 import { enableSwipeToggle } from "../../utils/swipe-toggle";
-import { requestSaveConfirmation } from "../../components/navigation/navigation";
+import {
+  hideAppModal,
+  requestSaveConfirmation,
+  showAppModal,
+} from "../../components/navigation/navigation";
 import {
   parseBloodPressureText,
   type ParsedBloodPressure,
@@ -19,6 +23,7 @@ let waitingForRetry = false;
 let focusedFrames = 0;
 let lastFocusCheck = 0;
 let focusAnimationFrame: number | undefined;
+let scanSuccessModalTimeout: number | undefined;
 
 const FOCUS_THRESHOLD = 8;
 const REQUIRED_FOCUSED_FRAMES = 4;
@@ -31,10 +36,6 @@ export function renderScanPage(): string {
 }
 
 export function initializeScanPage(): void {
-  const stopButton = document.getElementById(
-    "stopCameraButton",
-  ) as HTMLButtonElement | null;
-
   const video = document.getElementById(
     "cameraVideo",
   ) as HTMLVideoElement | null;
@@ -47,15 +48,18 @@ export function initializeScanPage(): void {
     "retryScanButton",
   ) as HTMLButtonElement | null;
 
-  if (!stopButton || !video || !confirmButton || !retryButton) {
+  if (!video || !confirmButton || !retryButton) {
     console.error("SCAN: camera elements not found");
 
     return;
   }
 
-  stopButton.addEventListener("click", () => {
-    stopCamera(stopButton);
-  });
+  retryButton.disabled = true;
+  document
+    .querySelectorAll<HTMLElement>("[data-close-scan-success]")
+    .forEach((element) => {
+      element.addEventListener("click", closeScanSuccessModal);
+    });
 
   ["scanSystolic", "scanDiastolic", "scanPulse"].forEach(
     (fieldId) => {
@@ -110,17 +114,15 @@ export function setScanPageActive(active: boolean): void {
     "cameraVideo",
   ) as HTMLVideoElement | null;
 
-  const stopButton = document.getElementById(
-    "stopCameraButton",
-  ) as HTMLButtonElement | null;
-
-  if (!video || !stopButton) {
+  if (!video) {
     return;
   }
 
   if (!active) {
     scanActive = false;
-    stopCamera(stopButton);
+    captureInProgress = false;
+    closeScanSuccessModal();
+    stopCamera();
     return;
   }
 
@@ -132,14 +134,12 @@ export function setScanPageActive(active: boolean): void {
   captureInProgress = false;
   focusedFrames = 0;
   waitingForRetry = false;
+  showLiveCameraPreview();
   resetScanResult();
-  void startCamera(video, stopButton);
+  void startCamera(video);
 }
 
-async function startCamera(
-  video: HTMLVideoElement,
-  stopButton: HTMLButtonElement,
-): Promise<void> {
+async function startCamera(video: HTMLVideoElement): Promise<void> {
   try {
     showMessage(
       "Activando cámara...",
@@ -148,11 +148,14 @@ async function startCamera(
 
     const stream = await cameraService.start();
 
+    if (!scanActive) {
+      cameraService.stop();
+      return;
+    }
+
     video.srcObject = stream;
 
     await video.play();
-
-    stopButton.hidden = false;
 
     showMessage(
       "Enfocando la pantalla dentro del recuadro...",
@@ -253,22 +256,24 @@ function restartScanCapture(): void {
     "cameraVideo",
   ) as HTMLVideoElement | null;
 
-  const stopButton = document.getElementById(
-    "stopCameraButton",
+  const retryButton = document.getElementById(
+    "retryScanButton",
   ) as HTMLButtonElement | null;
 
-  if (!video || !stopButton) {
+  if (!video || !retryButton || retryButton.disabled || !waitingForRetry) {
     return;
   }
 
+  retryButton.disabled = true;
   resetScanResult();
+  showLiveCameraPreview();
   focusedFrames = 0;
   captureInProgress = false;
   waitingForRetry = false;
   scanActive = true;
 
   if (!video.srcObject) {
-    void startCamera(video, stopButton);
+    void startCamera(video);
     return;
   }
 
@@ -308,10 +313,14 @@ function calculateSharpness(imageData: ImageData): number {
 }
 
 async function captureSequence(video: HTMLVideoElement): Promise<void> {
+  let imageCaptured = false;
+
   try {
     const photo = cameraService.capture(video);
+    imageCaptured = true;
 
     showCapturedPhoto(photo);
+    stopCameraStream();
 
     let consensus: ParsedBloodPressure | null;
 
@@ -347,9 +356,14 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
 
     console.log("SCAN: OCR consensus", consensus);
 
+    if (!scanActive) {
+      return;
+    }
+
     if (!consensus) {
       console.warn("SCAN: no OCR consensus after three readings");
       waitingForRetry = true;
+      setRetryButtonEnabled(true);
       resetScanResult();
       showMessage(
         "No se pudo confirmar la lectura. Pulsa Intentar de nuevo.",
@@ -358,11 +372,26 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
     }
 
     showParsedScanResult(consensus);
-    showMessage("Lectura confirmada. Revisa los valores.");
+    showMessage("Revisa los valores y confirma el registro.");
+    showScanSuccessModal(consensus);
   } catch (error) {
+    if (!scanActive) {
+      return;
+    }
+
     console.error("SCAN: OCR error", error);
 
+    if (!imageCaptured) {
+      showMessage(
+        error instanceof Error
+          ? error.message
+          : "No se pudo capturar la imagen.",
+      );
+      return;
+    }
+
     waitingForRetry = true;
+    setRetryButtonEnabled(true);
     resetScanResult();
     showMessage(
       error instanceof Error
@@ -428,7 +457,47 @@ function showParsedScanResult(
 
   container.hidden = false;
   waitingForRetry = true;
+  setRetryButtonEnabled(true);
   updateConfirmButtonState();
+}
+
+function setRetryButtonEnabled(enabled: boolean): void {
+  const retryButton = document.getElementById(
+    "retryScanButton",
+  ) as HTMLButtonElement | null;
+
+  if (retryButton) {
+    retryButton.disabled = !enabled;
+  }
+}
+
+function showScanSuccessModal(reading: ParsedBloodPressure): void {
+  const systolic = document.getElementById("scanSuccessSystolic");
+  const diastolic = document.getElementById("scanSuccessDiastolic");
+  const pulse = document.getElementById("scanSuccessPulse");
+
+  if (!systolic || !diastolic || !pulse) {
+    console.error("SCAN: success modal values not found");
+    return;
+  }
+
+  systolic.textContent = String(reading.sistolica);
+  diastolic.textContent = String(reading.diastolica);
+  pulse.textContent = String(reading.pulso);
+  showAppModal("scanSuccessModal");
+  scanSuccessModalTimeout = window.setTimeout(
+    closeScanSuccessModal,
+    3000,
+  );
+}
+
+function closeScanSuccessModal(): void {
+  if (scanSuccessModalTimeout !== undefined) {
+    window.clearTimeout(scanSuccessModalTimeout);
+    scanSuccessModalTimeout = undefined;
+  }
+
+  hideAppModal("scanSuccessModal");
 }
 
 function updateOcrDebug(
@@ -453,14 +522,17 @@ function updateOcrDebug(
 function showCapturedPhoto(
   source: HTMLCanvasElement,
 ): void {
-  const preview = document.querySelector<HTMLElement>(
-    ".scan-photo-preview",
-  );
   const canvas = document.getElementById(
-    "scanPhotoCanvas",
+    "scanCapturedCanvas",
   ) as HTMLCanvasElement | null;
 
-  if (!preview || !canvas) {
+  const video = document.getElementById(
+    "cameraVideo",
+  ) as HTMLVideoElement | null;
+  const frame = document.querySelector<HTMLElement>(".camera-frame");
+
+  if (!canvas || !video || !frame) {
+    console.error("SCAN: captured image preview elements not found");
     return;
   }
 
@@ -470,11 +542,33 @@ function showCapturedPhoto(
   const context = canvas.getContext("2d");
 
   if (!context) {
+    console.error("SCAN: captured image canvas context not available");
     return;
   }
 
   context.drawImage(source, 0, 0);
-  preview.hidden = false;
+  video.hidden = true;
+  frame.hidden = true;
+  canvas.hidden = false;
+}
+
+function showLiveCameraPreview(): void {
+  const video = document.getElementById(
+    "cameraVideo",
+  ) as HTMLVideoElement | null;
+  const frame = document.querySelector<HTMLElement>(".camera-frame");
+  const canvas = document.getElementById(
+    "scanCapturedCanvas",
+  ) as HTMLCanvasElement | null;
+
+  if (!video || !frame || !canvas) {
+    console.error("SCAN: camera preview elements not found");
+    return;
+  }
+
+  video.hidden = false;
+  frame.hidden = false;
+  canvas.hidden = true;
 }
 
 function setInputValue(
@@ -573,16 +667,6 @@ async function confirmScanResult(): Promise<void> {
     observaciones: "",
   };
 
-  const stopButton = document.getElementById(
-    "stopCameraButton",
-  ) as HTMLButtonElement | null;
-
-  if (!stopButton) {
-    console.error("SCAN: camera stop button not found");
-    return;
-  }
-
-  stopCamera(stopButton, false);
   requestSaveConfirmation(
     () => saveScanRecord(record, confirmButton),
     resetScanResult,
@@ -639,23 +723,10 @@ function resetScanResult(): void {
     debugElement.textContent = "Esperando lectura...";
   }
 
-  const photoPreview = document.querySelector<HTMLElement>(
-    ".scan-photo-preview",
-  );
-
-  if (photoPreview) {
-    photoPreview.hidden = true;
-  }
-
   updateConfirmButtonState();
 }
 
-function stopCamera(
-  stopButton: HTMLButtonElement,
-  showStoppedMessage = true,
-): void {
-  scanActive = false;
-
+function stopCameraStream(): void {
   if (focusAnimationFrame !== undefined) {
     window.cancelAnimationFrame(focusAnimationFrame);
     focusAnimationFrame = undefined;
@@ -671,17 +742,14 @@ function stopCamera(
     video.srcObject = null;
   }
 
+  document.querySelector(".camera-frame")?.classList.remove("focused");
+}
+
+function stopCamera(): void {
+  stopCameraStream();
+  showLiveCameraPreview();
   resetScanResult();
-
-  stopButton.hidden = true;
-
-  document.querySelector(".camera-frame")?.classList.remove(
-    "focused",
-  );
-
-  if (showStoppedMessage) {
-    showMessage("Cámara detenida.");
-  }
+  setRetryButtonEnabled(false);
 }
 
 function showMessage(

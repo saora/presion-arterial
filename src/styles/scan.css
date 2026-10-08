@@ -34,6 +34,21 @@
   object-fit: cover;
 }
 
+.camera-video[hidden] {
+  display: none;
+}
+
+.camera-captured-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.camera-captured-canvas[hidden] {
+  display: none;
+}
+
 /* =========================
    CAMERA FRAME
    ========================= */
@@ -234,25 +249,6 @@
 
   font-size: 18px;
   line-height: 1.2;
-}
-
-.scan-photo-preview {
-  margin-top: 14px;
-
-  overflow: hidden;
-
-  border-radius: 10px;
-
-  background: #f5f5f7;
-}
-
-.scan-photo-canvas {
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  image-rendering: auto;
 }
 
 .scan-ocr-debug {
@@ -517,6 +513,84 @@
   padding: 10px 8px;
 
   font-size: 14px;
+}
+
+.scan-result-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.scan-success-panel {
+  padding-top: 28px;
+  text-align: center;
+}
+
+.scan-success-panel h3 {
+  margin: 8px 0 4px;
+}
+
+.scan-success-panel > p {
+  margin: 0;
+  color: #6e6e73;
+  font-size: 14px;
+}
+
+.scan-success-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #d9f5ed;
+  color: #079879;
+}
+
+.scan-success-icon svg {
+  width: 34px;
+  height: 34px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scan-success-values {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.scan-success-values > span:not(.scan-success-separator) {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.scan-success-values strong {
+  color: #1d1d1f;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+.scan-success-values small {
+  color: #6e6e73;
+  font-size: 10px;
+}
+
+.scan-success-separator {
+  align-self: flex-start;
+  padding-top: 2px;
+  color: #8e8e93;
+}
+
+.scan-success-pulse {
+  margin-left: 6px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* =========================

@@ -172,6 +172,48 @@
     </div>
   </div>
 
+  <div
+    id="scanSuccessModal"
+    class="register-choice-modal scan-success-modal"
+    hidden
+    aria-hidden="true"
+  >
+    <div class="register-choice-backdrop" data-close-scan-success="true"></div>
+
+    <div
+      class="register-choice-panel scan-success-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="scanSuccessTitle"
+      aria-describedby="scanSuccessDescription"
+    >
+      <button
+        type="button"
+        class="modal-close-icon"
+        aria-label="Cerrar"
+        data-close-scan-success="true"
+      >
+        ×
+      </button>
+
+      <span class="scan-success-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="m5 12 4.5 4.5L19 7" />
+        </svg>
+      </span>
+
+      <h3 id="scanSuccessTitle">Lectura confirmada</h3>
+      <p id="scanSuccessDescription">Revisa los valores.</p>
+
+      <div class="scan-success-values" aria-label="Valores detectados">
+        <span><strong id="scanSuccessSystolic"></strong><small>Sistólica</small></span>
+        <span class="scan-success-separator">/</span>
+        <span><strong id="scanSuccessDiastolic"></strong><small>Diastólica</small></span>
+        <span class="scan-success-pulse"><strong id="scanSuccessPulse"></strong><small>Pulso lpm</small></span>
+      </div>
+    </div>
+  </div>
+
   {{NAVIGATION}}
 
 </div>

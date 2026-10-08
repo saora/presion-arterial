@@ -44,6 +44,13 @@
         muted
       ></video>
 
+      <canvas
+        id="scanCapturedCanvas"
+        class="camera-captured-canvas"
+        hidden
+        aria-label="Imagen capturada de la medición"
+      ></canvas>
+
       <div class="camera-frame">
 
         <div class="camera-frame-corner top-left"></div>
@@ -63,18 +70,6 @@
       aria-live="polite"
     >
       Coloca la pantalla dentro del recuadro.
-    </div>
-
-    <div class="scan-actions">
-      <button
-        type="button"
-        id="stopCameraButton"
-        class="secondary-button"
-        hidden
-      >
-        Detener cámara
-      </button>
-
     </div>
 
   </div>

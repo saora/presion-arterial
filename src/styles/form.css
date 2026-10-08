@@ -21,6 +21,10 @@
   padding-top: calc(var(--page-content-offset) - 12px + env(safe-area-inset-top, 0px));
 }
 
+#page-scan {
+  padding-top: calc(var(--page-content-offset) + 20px + env(safe-area-inset-top, 0px));
+}
+
 #page-home {
   padding-top: calc(var(--page-content-offset) + env(safe-area-inset-top, 0px));
 }
