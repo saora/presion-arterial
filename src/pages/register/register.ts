@@ -1,5 +1,6 @@
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
+import { requestSaveConfirmation } from "../../components/navigation/navigation";
 import { enableSwipeToggle } from "../../utils/swipe-toggle";
 import registerTemplate from "./register.html?raw";
 
@@ -240,27 +241,65 @@ async function handleFormSubmit(event: SubmitEvent): Promise<void> {
 
   console.log("REGISTER: record", record);
 
+  requestSaveConfirmation(
+    () => saveRegisterRecord(record, form, saveButton),
+    () => resetRegisterForm(form, saveButton),
+  );
+}
+
+async function saveRegisterRecord(
+  record: BloodPressureRecord,
+  form: HTMLFormElement,
+  saveButton: HTMLButtonElement,
+): Promise<void> {
   try {
     saveButton.disabled = true;
 
-    showMessage("Guardando medición...");
-
     await saveBloodPressureRecord(record);
 
-    showMessage("Medición guardada correctamente.");
-
-    form.reset();
-
-    initializeDateTime();
-
-    updateSaveButtonState(form, saveButton);
+    resetRegisterForm(form, saveButton);
   } catch (error) {
     console.error("REGISTER: save error", error);
-
-    showMessage("No se pudo guardar la medición.");
-
+    throw error;
+  } finally {
     updateSaveButtonState(form, saveButton);
   }
+}
+
+function resetRegisterForm(
+  form: HTMLFormElement,
+  saveButton: HTMLButtonElement,
+): void {
+  const fecha = (document.getElementById("fecha") as HTMLInputElement | null)?.value;
+  const hora = (document.getElementById("hora") as HTMLInputElement | null)?.value;
+
+  form.reset();
+
+  const dateInput = document.getElementById("fecha") as HTMLInputElement | null;
+  const timeInput = document.getElementById("hora") as HTMLInputElement | null;
+
+  if (dateInput && fecha !== undefined) {
+    dateInput.value = fecha;
+  }
+  if (timeInput && hora !== undefined) {
+    timeInput.value = hora;
+  }
+
+  const extraDetails = document.getElementById("extraDetails");
+  const extraDetailsButton = document.getElementById("toggleExtraDetailsButton");
+
+  if (extraDetails) {
+    extraDetails.hidden = true;
+  }
+  if (extraDetailsButton) {
+    extraDetailsButton.textContent = "+";
+    extraDetailsButton.setAttribute("aria-expanded", "false");
+    extraDetailsButton.setAttribute("aria-label", "Mostrar más detalles");
+    extraDetailsButton.classList.remove("is-open");
+  }
+
+  showMessage("");
+  updateSaveButtonState(form, saveButton);
 }
 
 function buildRecord(formData: FormData): BloodPressureRecord {

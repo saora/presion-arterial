@@ -2,6 +2,7 @@ import { cameraService } from "../../services/camera";
 import { ocrService } from "../../services/ocr";
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
+import { requestSaveConfirmation } from "../../components/navigation/navigation";
 import { enableSwipeToggle } from "../../utils/swipe-toggle";
 import {
   parseBloodPressureText,
@@ -556,16 +557,35 @@ async function confirmScanResult(): Promise<void> {
     observaciones: "",
   };
 
+  const stopButton = document.getElementById(
+    "stopCameraButton",
+  ) as HTMLButtonElement | null;
+
+  if (!stopButton) {
+    console.error("SCAN: camera stop button not found");
+    return;
+  }
+
+  stopCamera(stopButton, false);
+
+  requestSaveConfirmation(
+    () => saveScanRecord(record, confirmButton),
+    resetScanResult,
+  );
+}
+
+async function saveScanRecord(
+  record: BloodPressureRecord,
+  confirmButton: HTMLButtonElement,
+): Promise<void> {
   confirmButton.disabled = true;
-  showMessage("Guardando medición...");
 
   try {
     await saveBloodPressureRecord(record);
     resetScanResult();
-    showMessage("Medición guardada correctamente.");
   } catch (error) {
     console.error("SCAN: save error", error);
-    showMessage("No se pudo guardar la medición.");
+    throw error;
   } finally {
     confirmButton.disabled = false;
   }
@@ -615,7 +635,10 @@ function resetScanResult(): void {
   updateConfirmButtonState();
 }
 
-function stopCamera(stopButton: HTMLButtonElement): void {
+function stopCamera(
+  stopButton: HTMLButtonElement,
+  clearResult = true,
+): void {
   scanActive = false;
 
   if (focusAnimationFrame !== undefined) {
@@ -633,7 +656,9 @@ function stopCamera(stopButton: HTMLButtonElement): void {
     video.srcObject = null;
   }
 
-  resetScanResult();
+  if (clearResult) {
+    resetScanResult();
+  }
 
   stopButton.hidden = true;
 

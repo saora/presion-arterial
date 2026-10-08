@@ -322,14 +322,15 @@
 .register-choice-modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 1000;
   display: grid;
   place-items: center;
 }
 
 .register-choice-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: 0;
   background: rgba(15, 23, 42, 0.2);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -380,6 +381,54 @@
   color: #6e6e73;
   font-size: 14px;
   text-align: center;
+}
+
+.save-record-feedback {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 8px 0 4px;
+  text-align: center;
+}
+
+.save-record-feedback[hidden] {
+  display: none;
+}
+
+.save-record-feedback p {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.save-record-feedback-icon:empty {
+  display: none;
+}
+
+.save-record-feedback-icon svg {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.save-record-feedback.is-success .save-record-feedback-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #d9f5ed;
+  color: #079879;
+}
+
+.save-record-feedback.is-success .save-record-feedback-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.save-record-feedback.is-error p {
+  color: #b94f5e;
 }
 
 .register-choice-actions {
