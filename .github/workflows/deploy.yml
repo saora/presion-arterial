@@ -32,6 +32,8 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          VITE_GROQ_OCR_URL: ${{ vars.GROQ_OCR_URL }}
         run: npm run build
 
       - name: Setup Pages

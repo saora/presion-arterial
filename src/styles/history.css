@@ -6,14 +6,14 @@
   display: flex;
   flex-direction: column;
 
-  padding-top: calc(var(--page-content-offset) + 48px + env(safe-area-inset-top, 0px));
+  padding-top: 128px;
 
   gap: 8px;
 }
 
 .history-page-header {
   position: fixed;
-  top: env(safe-area-inset-top, 0px);
+  top: 0;
   left: 50%;
   z-index: 10;
 
@@ -34,7 +34,7 @@
 
 .history-filters {
   position: fixed;
-  top: calc(var(--page-content-offset) + 18px + env(safe-area-inset-top, 0px));
+  top: 78px;
   left: 50%;
   z-index: 10;
 
@@ -254,27 +254,29 @@
 
 .history-delete-button {
   position: absolute;
-  top: 50%;
-  right: 22px;
+  top: calc(100% + 4px);
+  left: 50%;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
+
   margin: 0;
 
   border: 0;
   border-radius: 8px;
-  background: transparent;
-  color: #d98f9b;
-  cursor: pointer;
-  transform: translateY(-50%);
-}
 
-.history-card-no-details .history-delete-button {
-  right: 34px;
+  background: transparent;
+
+  color: #8e8e93;
+
+  cursor: pointer;
+
+  transform: translateX(-50%);
 }
 
 .history-delete-button:hover {
@@ -294,8 +296,8 @@
 }
 
 .history-delete-button svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 
   fill: none;
   stroke: currentColor;
@@ -366,18 +368,16 @@
    ========================= */
 
 .history-card-header {
-  display: grid;
-  grid-template-columns: 112px 64px minmax(64px, 1fr);
+  display: flex;
+
   align-items: center;
+  justify-content: space-between;
+
   gap: 10px;
-  padding-right: 72px;
+
+  padding-right: 20px;
 
   margin: 0 0 6px;
-}
-
-.history-card-date-time {
-  min-width: 0;
-  white-space: nowrap;
 }
 
 .history-date {
@@ -392,34 +392,13 @@
 }
 
 .history-time {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  min-width: 0;
+  display: inline;
+
   margin: 0;
+
   color: #6e6e73;
+
   font-size: 11px;
-  white-space: nowrap;
-}
-
-.history-time-icon {
-  display: block;
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.history-time-icon-day {
-  color: #e4a800;
-}
-
-.history-time-icon-night {
-  color: #3b72ff;
 }
 
 
@@ -428,8 +407,6 @@
    ========================= */
 
 .history-arm {
-  justify-self: end;
-
   flex-shrink: 0;
 
   padding: 3px 8px;
@@ -444,6 +421,11 @@
   font-weight: 600;
 
   line-height: 1.2;
+}
+
+.history-arm-group {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .history-arm-left {
@@ -464,14 +446,18 @@
    ========================= */
 
 .history-measurement {
-  display: grid;
-  grid-template-columns: 112px 64px;
+  display: flex;
+
   align-items: center;
+
   gap: 10px;
-  width: 100%;
+
   padding: 0;
+
   margin: 0;
+
   background: transparent;
+
   border: 0;
 }
 
@@ -493,8 +479,8 @@
 
   line-height: 1.2;
   font-weight: 700;
+
   letter-spacing: -0.2px;
-  font-variant-numeric: tabular-nums;
 }
 
 .history-pressure-unit {
@@ -508,23 +494,24 @@
 
 .history-pulse {
   display: flex;
+
+  flex-direction: row;
   align-items: center;
+
   gap: 4px;
-  width: 64px;
+
   padding: 0;
+
   border: 0;
 }
 
 .history-pulse::before {
-  display: inline-flex;
-  flex: 0 0 16px;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
   content: "♡";
-  color: #e5484d;
+
+  color: #8e8e93;
+
   font-size: 13px;
+
   line-height: 1;
 }
 
@@ -535,7 +522,6 @@
 
   line-height: 1.2;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
 }
 
 .history-pulse-unit {

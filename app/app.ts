@@ -20,7 +20,6 @@ import {
 import {
   renderHomePage,
   initializeHomePage,
-  refreshHomeDashboard,
 } from "../src/pages/home/home";
 
 import {
@@ -39,7 +38,11 @@ import {
   initializeHistoryPage,
   refreshHistoryPage,
 } from "../src/pages/history/history";
-import profileTemplate from "../src/pages/profile/profile.html?raw";
+
+import {
+  renderProfilePage,
+  initializeProfilePage,
+} from "../src/pages/profile/profile";
 
 export async function initializeApp(): Promise<void> {
   console.log("APP: initializeApp");
@@ -57,18 +60,15 @@ export async function initializeApp(): Promise<void> {
     .replace("{{REGISTER}}", renderRegisterPage())
     .replace("{{SCAN}}", renderScanPage())
     .replace("{{HISTORY}}", renderHistoryPage())
-    .replace("{{PROFILE}}", profileTemplate)
+    .replace("{{PROFILE}}", renderProfilePage())
     .replace("{{NAVIGATION}}", renderNavigation());
 
   initializeHomePage();
   initializeRegisterPage();
   initializeHistoryPage();
   initializeScanPage();
+  initializeProfilePage();
   initializeNavigation((page) => {
-    if (page === "home") {
-      refreshHomeDashboard();
-    }
-
     if (page === "history") {
       refreshHistoryPage();
     }
