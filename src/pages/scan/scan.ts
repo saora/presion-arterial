@@ -142,7 +142,7 @@ async function startCamera(
 ): Promise<void> {
   try {
     showMessage(
-      "Solicitando acceso a la cámara...",
+      "Activando cámara...",
       "processing",
     );
 
