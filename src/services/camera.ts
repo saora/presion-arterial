@@ -55,15 +55,57 @@ class CameraServiceImpl implements CameraService {
       );
     }
 
+    const frame = document.querySelector<HTMLElement>(".camera-frame");
+    const container = video.closest<HTMLElement>(".camera-container");
+
+    if (!frame || !container) {
+      throw new Error("No se encontró el recuadro de captura.");
+    }
+
+    if (!frame.classList.contains("focused")) {
+      throw new Error("Espera a que el recuadro se ponga verde para capturar.");
+    }
+
+    const frameRect = frame.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const coverScale = Math.max(
+      containerRect.width / video.videoWidth,
+      containerRect.height / video.videoHeight,
+    );
+    const renderedWidth = video.videoWidth * coverScale;
+    const renderedHeight = video.videoHeight * coverScale;
+    const horizontalCrop = (renderedWidth - containerRect.width) / 2;
+    const verticalCrop = (renderedHeight - containerRect.height) / 2;
+    const cropX = Math.max(
+      0,
+      Math.round(
+        (frameRect.left - containerRect.left + horizontalCrop) / coverScale,
+      ),
+    );
+    const cropY = Math.max(
+      0,
+      Math.round(
+        (frameRect.top - containerRect.top + verticalCrop) / coverScale,
+      ),
+    );
+    const cropWidth = Math.min(
+      video.videoWidth - cropX,
+      Math.round(frameRect.width / coverScale),
+    );
+    const cropHeight = Math.min(
+      video.videoHeight - cropY,
+      Math.round(frameRect.height / coverScale),
+    );
+
+    if (cropWidth <= 0 || cropHeight <= 0) {
+      throw new Error("El área del recuadro no es válida para capturar.");
+    }
+
     const canvas =
       document.createElement(
         'canvas'
       );
 
-    const cropX = Math.round(video.videoWidth * 0.08);
-    const cropY = Math.round(video.videoHeight * 0.10);
-    const cropWidth = Math.round(video.videoWidth * 0.84);
-    const cropHeight = Math.round(video.videoHeight * 0.80);
     const scale = 3;
 
     canvas.width = cropWidth * scale;

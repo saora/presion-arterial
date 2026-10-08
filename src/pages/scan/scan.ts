@@ -23,7 +23,7 @@ let waitingForRetry = false;
 let focusedFrames = 0;
 let lastFocusCheck = 0;
 let focusAnimationFrame: number | undefined;
-let scanSuccessModalTimeout: number | undefined;
+let pendingScanReading: ParsedBloodPressure | undefined;
 
 const FOCUS_THRESHOLD = 8;
 const REQUIRED_FOCUSED_FRAMES = 4;
@@ -56,10 +56,16 @@ export function initializeScanPage(): void {
 
   retryButton.disabled = true;
   document
-    .querySelectorAll<HTMLElement>("[data-close-scan-success]")
+    .querySelectorAll<HTMLElement>("[data-dismiss-scan-success]")
     .forEach((element) => {
-      element.addEventListener("click", closeScanSuccessModal);
+      element.addEventListener("click", dismissScanSuccessModal);
     });
+  document
+    .getElementById("confirmScanReading")
+    ?.addEventListener("click", confirmRecognizedReading);
+  document
+    .getElementById("retryScanReading")
+    ?.addEventListener("click", retryRecognizedReading);
 
   ["scanSystolic", "scanDiastolic", "scanPulse"].forEach(
     (fieldId) => {
@@ -84,7 +90,7 @@ export function initializeScanPage(): void {
 
   retryButton.addEventListener(
     "click",
-    restartScanCapture,
+    () => restartScanCapture(),
   );
 
   document.querySelectorAll<HTMLButtonElement>("[data-back-to-home]")
@@ -121,7 +127,8 @@ export function setScanPageActive(active: boolean): void {
   if (!active) {
     scanActive = false;
     captureInProgress = false;
-    closeScanSuccessModal();
+    pendingScanReading = undefined;
+    hideScanSuccessModal();
     stopCamera();
     return;
   }
@@ -133,9 +140,10 @@ export function setScanPageActive(active: boolean): void {
   scanActive = true;
   captureInProgress = false;
   focusedFrames = 0;
+  pendingScanReading = undefined;
   waitingForRetry = false;
-  showLiveCameraPreview();
   resetScanResult();
+  showLiveCameraPreview();
   void startCamera(video);
 }
 
@@ -251,7 +259,7 @@ function startFocusDetection(video: HTMLVideoElement): void {
   focusAnimationFrame = window.requestAnimationFrame(checkFocus);
 }
 
-function restartScanCapture(): void {
+function restartScanCapture(fromModal = false): void {
   const video = document.getElementById(
     "cameraVideo",
   ) as HTMLVideoElement | null;
@@ -260,7 +268,11 @@ function restartScanCapture(): void {
     "retryScanButton",
   ) as HTMLButtonElement | null;
 
-  if (!video || !retryButton || retryButton.disabled || !waitingForRetry) {
+  if (
+    !video || !retryButton ||
+    (!fromModal && retryButton.disabled) ||
+    !waitingForRetry
+  ) {
     return;
   }
 
@@ -363,16 +375,14 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
     if (!consensus) {
       console.warn("SCAN: no OCR consensus after three readings");
       waitingForRetry = true;
-      setRetryButtonEnabled(true);
-      resetScanResult();
-      showMessage(
-        "No se pudo confirmar la lectura. Pulsa Intentar de nuevo.",
+      clearScanFields();
+      showScanFailureModal(
+        "No se pudo confirmar la lectura. Intenta capturarla de nuevo.",
       );
       return;
     }
 
     showParsedScanResult(consensus);
-    showMessage("Revisa los valores y confirma el registro.");
     showScanSuccessModal(consensus);
   } catch (error) {
     if (!scanActive) {
@@ -391,9 +401,8 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
     }
 
     waitingForRetry = true;
-    setRetryButtonEnabled(true);
-    resetScanResult();
-    showMessage(
+    clearScanFields();
+    showScanFailureModal(
       error instanceof Error
         ? error.message
         : "No se pudo leer la medición.",
@@ -445,19 +454,21 @@ function findConsensus(
 function showParsedScanResult(
   parsed: ParsedBloodPressure,
 ): void {
-  const container = document.getElementById("scanResult");
-
-  if (!container) {
+  if (
+    parsed.sistolica === null ||
+    parsed.diastolica === null ||
+    parsed.pulso === null
+  ) {
+    console.error("SCAN: OCR returned incomplete reading");
     return;
   }
 
-  setInputValue("scanSystolic", parsed.sistolica);
-  setInputValue("scanDiastolic", parsed.diastolica);
-  setInputValue("scanPulse", parsed.pulso);
-
-  container.hidden = false;
+  pendingScanReading = parsed;
+  document.getElementById("scanResult")?.setAttribute("hidden", "");
   waitingForRetry = true;
-  setRetryButtonEnabled(true);
+  setRetryButtonVisible(false);
+  stopCameraStream();
+  showCapturedPreview();
   updateConfirmButtonState();
 }
 
@@ -467,7 +478,19 @@ function setRetryButtonEnabled(enabled: boolean): void {
   ) as HTMLButtonElement | null;
 
   if (retryButton) {
+    retryButton.hidden = !enabled;
     retryButton.disabled = !enabled;
+  }
+}
+
+function setRetryButtonVisible(visible: boolean): void {
+  const retryButton = document.getElementById(
+    "retryScanButton",
+  ) as HTMLButtonElement | null;
+
+  if (retryButton) {
+    retryButton.hidden = !visible;
+    retryButton.disabled = !visible || !waitingForRetry;
   }
 }
 
@@ -475,28 +498,106 @@ function showScanSuccessModal(reading: ParsedBloodPressure): void {
   const systolic = document.getElementById("scanSuccessSystolic");
   const diastolic = document.getElementById("scanSuccessDiastolic");
   const pulse = document.getElementById("scanSuccessPulse");
+  const title = document.getElementById("scanSuccessTitle");
+  const description = document.getElementById("scanSuccessDescription");
+  const values = document.getElementById("scanSuccessValues");
+  const confirmButton = document.getElementById("confirmScanReading");
+  const icon = document.querySelector(".scan-success-icon");
+  const iconPath = document.getElementById("scanModalIconPath");
+  const actions = document.querySelector(".scan-success-actions");
 
-  if (!systolic || !diastolic || !pulse) {
+  if (
+    !systolic || !diastolic || !pulse || !title || !description ||
+    !values || !(confirmButton instanceof HTMLButtonElement) ||
+    !icon || !iconPath || !actions
+  ) {
     console.error("SCAN: success modal values not found");
     return;
   }
 
+  icon.classList.remove("is-error");
+  iconPath.setAttribute("d", "m5 12 4.5 4.5L19 7");
+  actions.classList.remove("is-error");
+  title.textContent = "Lectura confirmada";
+  description.textContent = "Revisa los valores.";
+  values.hidden = false;
+  confirmButton.hidden = false;
   systolic.textContent = String(reading.sistolica);
   diastolic.textContent = String(reading.diastolica);
   pulse.textContent = String(reading.pulso);
   showAppModal("scanSuccessModal");
-  scanSuccessModalTimeout = window.setTimeout(
-    closeScanSuccessModal,
-    3000,
-  );
 }
 
-function closeScanSuccessModal(): void {
-  if (scanSuccessModalTimeout !== undefined) {
-    window.clearTimeout(scanSuccessModalTimeout);
-    scanSuccessModalTimeout = undefined;
+function showScanFailureModal(message: string): void {
+  const title = document.getElementById("scanSuccessTitle");
+  const description = document.getElementById("scanSuccessDescription");
+  const values = document.getElementById("scanSuccessValues");
+  const confirmButton = document.getElementById("confirmScanReading");
+  const icon = document.querySelector(".scan-success-icon");
+  const iconPath = document.getElementById("scanModalIconPath");
+  const actions = document.querySelector(".scan-success-actions");
+
+  if (
+    !title || !description || !values ||
+    !(confirmButton instanceof HTMLButtonElement) ||
+    !icon || !iconPath || !actions
+  ) {
+    console.error("SCAN: failure modal elements not found");
+    showMessage(message);
+    return;
   }
 
+  icon.classList.add("is-error");
+  iconPath.setAttribute("d", "M18 6 6 18M6 6l12 12");
+  actions.classList.add("is-error");
+  title.textContent = "No se pudo leer";
+  description.textContent = message;
+  values.hidden = true;
+  confirmButton.hidden = true;
+  showAppModal("scanSuccessModal");
+}
+
+function confirmRecognizedReading(): void {
+  const reading = pendingScanReading;
+
+  if (
+    !reading ||
+    reading.sistolica === null ||
+    reading.diastolica === null ||
+    reading.pulso === null
+  ) {
+    console.error("SCAN: no complete reading to confirm");
+    return;
+  }
+
+  hideScanSuccessModal();
+  pendingScanReading = undefined;
+  setInputValue("scanSystolic", reading.sistolica);
+  setInputValue("scanDiastolic", reading.diastolica);
+  setInputValue("scanPulse", reading.pulso);
+  document.getElementById("scanResult")?.removeAttribute("hidden");
+  setRetryButtonVisible(false);
+  updateConfirmButtonState();
+  showMessage("Revisa los valores y guarda el registro.");
+  document.getElementById("confirmScanButton")?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}
+
+function retryRecognizedReading(): void {
+  hideScanSuccessModal();
+  pendingScanReading = undefined;
+  restartScanCapture(true);
+}
+
+function dismissScanSuccessModal(): void {
+  hideScanSuccessModal();
+  pendingScanReading = undefined;
+  restartScanCapture(true);
+}
+
+function hideScanSuccessModal(): void {
   hideAppModal("scanSuccessModal");
 }
 
@@ -547,6 +648,30 @@ function showCapturedPhoto(
   }
 
   context.drawImage(source, 0, 0);
+  video.hidden = true;
+  frame.hidden = true;
+  canvas.hidden = false;
+}
+
+function showCapturedPreview(): void {
+  const canvas = document.getElementById(
+    "scanCapturedCanvas",
+  ) as HTMLCanvasElement | null;
+
+  if (!canvas || canvas.width === 0 || canvas.height === 0) {
+    return;
+  }
+
+  const video = document.getElementById(
+    "cameraVideo",
+  ) as HTMLVideoElement | null;
+  const frame = document.querySelector<HTMLElement>(".camera-frame");
+
+  if (!video || !frame) {
+    console.error("SCAN: captured preview elements not found");
+    return;
+  }
+
   video.hidden = true;
   frame.hidden = true;
   canvas.hidden = false;
@@ -617,6 +742,11 @@ function updateConfirmButtonState(): void {
     !complete,
   );
   confirmButton.disabled = !complete;
+
+  if (complete) {
+    stopCameraStream();
+    showCapturedPreview();
+  }
 }
 
 async function confirmScanResult(): Promise<void> {
@@ -669,7 +799,6 @@ async function confirmScanResult(): Promise<void> {
 
   requestSaveConfirmation(
     () => saveScanRecord(record, confirmButton),
-    resetScanResult,
   );
 }
 
@@ -708,9 +837,18 @@ function resetScanResult(): void {
   const container = document.getElementById("scanResult");
 
   if (container) {
-    container.hidden = false;
+    container.hidden = true;
   }
 
+  clearScanFields();
+  pendingScanReading = undefined;
+  showLiveCameraPreview();
+  setRetryButtonEnabled(false);
+  waitingForRetry = false;
+  updateConfirmButtonState();
+}
+
+function clearScanFields(): void {
   setInputValue("scanSystolic", null);
   setInputValue("scanDiastolic", null);
   setInputValue("scanPulse", null);
@@ -722,8 +860,6 @@ function resetScanResult(): void {
   if (debugElement) {
     debugElement.textContent = "Esperando lectura...";
   }
-
-  updateConfirmButtonState();
 }
 
 function stopCameraStream(): void {
