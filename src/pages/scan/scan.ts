@@ -7,6 +7,7 @@ import { enableSwipeToggle } from "../../utils/swipe-toggle";
 import {
   hideAppModal,
   requestSaveConfirmation,
+  requestUnsavedChangesConfirmation,
   showAppModal,
 } from "../../components/navigation/navigation";
 import {
@@ -93,15 +94,14 @@ export function initializeScanPage(): void {
     () => restartScanCapture(),
   );
 
-  document.querySelectorAll<HTMLButtonElement>("[data-back-to-home]")
+  document.querySelectorAll<HTMLButtonElement>(
+    '#page-scan [data-back-to-home]',
+  )
     .forEach((button) => {
       button.addEventListener("click", () => {
-        document.querySelector<HTMLButtonElement>(
-          '.nav-item[data-page="home"]',
-        )?.click();
+        handleScanBackToHome();
       });
     });
-
   enableSwipeToggle(document.querySelector(".scan-arm-toggle"));
 
   updateConfirmButtonState();
@@ -109,6 +109,34 @@ export function initializeScanPage(): void {
   scanInitialized = true;
 
   console.log("SCAN: initialized");
+}
+
+function handleScanBackToHome(): void {
+  if (hasUnsavedScanValues()) {
+    requestUnsavedChangesConfirmation(navigateHome);
+    return;
+  }
+
+  navigateHome();
+}
+
+function hasUnsavedScanValues(): boolean {
+  const result = document.getElementById("scanResult");
+
+  if (!result || result.hidden) {
+    return false;
+  }
+
+  return ["scanSystolic", "scanDiastolic", "scanPulse"].some((id) => {
+    const input = document.getElementById(id) as HTMLInputElement | null;
+    return Boolean(input?.value.trim());
+  });
+}
+
+function navigateHome(): void {
+  document.querySelector<HTMLButtonElement>(
+    '.nav-item[data-page="home"]',
+  )?.click();
 }
 
 export function setScanPageActive(active: boolean): void {

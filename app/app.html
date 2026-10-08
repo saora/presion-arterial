@@ -235,6 +235,52 @@
     </div>
   </div>
 
+  <div
+    id="scanLeaveWarningModal"
+    class="register-choice-modal scan-leave-warning-modal"
+    hidden
+    aria-hidden="true"
+  >
+    <div class="register-choice-backdrop"></div>
+
+    <div
+      class="register-choice-panel scan-leave-warning-panel"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="scanLeaveWarningTitle"
+      aria-describedby="scanLeaveWarningDescription"
+    >
+      <span class="scan-leave-warning-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3 2.8 20h18.4L12 3Z" />
+          <path d="M12 9v5m0 3h.01" />
+        </svg>
+      </span>
+
+      <h3 id="scanLeaveWarningTitle">¿Salir sin guardar?</h3>
+      <p id="scanLeaveWarningDescription">
+        Este registro no se ha guardado. Si sales, perderás los valores capturados.
+      </p>
+
+      <div class="register-choice-actions">
+        <button
+          type="button"
+          id="returnToScanButton"
+          class="choice-button"
+        >
+          Regresar
+        </button>
+        <button
+          type="button"
+          id="discardScanButton"
+          class="choice-button choice-button-danger"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+
   {{NAVIGATION}}
 
 </div>

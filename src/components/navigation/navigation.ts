@@ -4,6 +4,7 @@ let pendingSaveConfirmation: (() => void | Promise<void>) | undefined;
 let cancelSaveConfirmationAction: (() => void) | undefined;
 let saveModalCloseTimeout: number | undefined;
 let saveConfirmationInProgress = false;
+let discardUnsavedChangesAction: (() => void) | undefined;
 
 export function renderNavigation(): string {
   return navigationTemplate;
@@ -85,6 +86,22 @@ export function initializeNavigation(
     .querySelector<HTMLElement>("[data-close-save-modal]")
     ?.addEventListener("click", cancelSaveConfirmation);
 
+  document
+    .getElementById("returnToScanButton")
+    ?.addEventListener("click", () => {
+      discardUnsavedChangesAction = undefined;
+      hideAppModal("scanLeaveWarningModal");
+    });
+
+  document
+    .getElementById("discardScanButton")
+    ?.addEventListener("click", () => {
+      const onDiscard = discardUnsavedChangesAction;
+      discardUnsavedChangesAction = undefined;
+      hideAppModal("scanLeaveWarningModal");
+      onDiscard?.();
+    });
+
   console.log("NAVIGATION: initialized");
 }
 
@@ -151,6 +168,13 @@ export function requestSaveConfirmation(
   saveConfirmationInProgress = false;
   resetSaveModalFeedback();
   showAppModal("saveRecordModal");
+}
+
+export function requestUnsavedChangesConfirmation(
+  onDiscard: () => void,
+): void {
+  discardUnsavedChangesAction = onDiscard;
+  showAppModal("scanLeaveWarningModal");
 }
 
 function cancelSaveConfirmation(): void {

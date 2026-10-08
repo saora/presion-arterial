@@ -1,7 +1,10 @@
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
 import { enableSwipeToggle } from "../../utils/swipe-toggle";
-import { requestSaveConfirmation } from "../../components/navigation/navigation";
+import {
+  requestSaveConfirmation,
+  requestUnsavedChangesConfirmation,
+} from "../../components/navigation/navigation";
 import registerTemplate from "./register.html?raw";
 
 let dateTimeInterval: number | undefined;
@@ -68,12 +71,12 @@ export function initializeRegisterPage(): void {
 
   initializeExtraDetailsToggle();
 
-  document.querySelectorAll<HTMLButtonElement>("[data-back-to-home]")
+  document.querySelectorAll<HTMLButtonElement>(
+    '#page-register [data-back-to-home]',
+  )
     .forEach((button) => {
       button.addEventListener("click", () => {
-        document.querySelector<HTMLButtonElement>(
-          '.nav-item[data-page="home"]',
-        )?.click();
+        handleRegisterBackToHome(form, saveButton);
       });
     });
 
@@ -92,6 +95,39 @@ export function initializeRegisterPage(): void {
   form.addEventListener("submit", handleFormSubmit);
 
   console.log("REGISTER: initialized");
+}
+
+function handleRegisterBackToHome(
+  form: HTMLFormElement,
+  saveButton: HTMLButtonElement,
+): void {
+  const hasUnsavedValues = [
+    "sistolica",
+    "diastolica",
+    "pulso",
+    "sintomas",
+    "observaciones",
+  ].some((id) => {
+    const input = document.getElementById(id) as HTMLInputElement | null;
+    return Boolean(input?.value.trim());
+  });
+
+  if (hasUnsavedValues) {
+    requestUnsavedChangesConfirmation(() => {
+      resetRegisterForm(form, saveButton);
+      navigateHome();
+    });
+    return;
+  }
+
+  resetRegisterForm(form, saveButton);
+  navigateHome();
+}
+
+function navigateHome(): void {
+  document.querySelector<HTMLButtonElement>(
+    '.nav-item[data-page="home"]',
+  )?.click();
 }
 
 function initializeExtraDetailsToggle(): void {
