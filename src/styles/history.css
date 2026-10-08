@@ -411,12 +411,12 @@
   stroke-linejoin: round;
 }
 
-.history-time-icon-day {
-  color: #e4a800;
+.history-time-icon-morning {
+  color: #ffbb02;
 }
 
 .history-time-icon-afternoon {
-  color: #f08a36;
+  color: #ffca7b;
 }
 
 .history-time-icon-night {
