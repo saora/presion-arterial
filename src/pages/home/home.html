@@ -1,7 +1,20 @@
 <section id="page-home" class="page active">
-  <div class="page-header">
-    <h2>Estadísticas</h2>
-    <p>Visualiza la evolución de tus mediciones.</p>
+  <div class="page-header home-page-header">
+    <div class="home-page-header-copy">
+      <h2>Estadísticas</h2>
+      <p>Visualiza la evolución de tus mediciones.</p>
+    </div>
+    <button
+      type="button"
+      class="home-profile-icon"
+      data-show-page="profile"
+      aria-label="Abrir perfil de usuario"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="8" r="3.5" />
+        <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+      </svg>
+    </button>
   </div>
 
   <div class="dashboard-summary-header">
@@ -52,6 +65,7 @@
     <div class="chart-panel-legend" aria-label="Leyenda del gráfico">
       <span class="legend-item legend-sistolica"><i></i>Sistólica</span>
       <span class="legend-item legend-diastolica"><i></i>Diastólica</span>
+      <span class="legend-item legend-pulso"><i></i>Pulso</span>
     </div>
   </div>
 </section>

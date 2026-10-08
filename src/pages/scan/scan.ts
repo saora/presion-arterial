@@ -1,8 +1,10 @@
 import { cameraService } from "../../services/camera";
+import { groqVisionService } from "../../services/groq-vision";
 import { ocrService } from "../../services/ocr";
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
 import { enableSwipeToggle } from "../../utils/swipe-toggle";
+import { requestSaveConfirmation } from "../../components/navigation/navigation";
 import {
   parseBloodPressureText,
   type ParsedBloodPressure,
@@ -307,31 +309,42 @@ function calculateSharpness(imageData: ImageData): number {
 
 async function captureSequence(video: HTMLVideoElement): Promise<void> {
   try {
-    const readings: ParsedBloodPressure[] = [];
     const photo = cameraService.capture(video);
 
     showCapturedPhoto(photo);
 
-    for (let index = 0; index < 3; index += 1) {
-      showMessage(
-        `Leyendo la pantalla... ${index + 1}/3`,
-        "processing",
-      );
+    let consensus: ParsedBloodPressure | null;
 
-      const result = await ocrService.recognize(photo);
-      const parsed = parseBloodPressureText(result.text);
+    if (groqVisionService.isConfigured) {
+      showMessage("Enviando imagen a Groq para reconocerla...", "processing");
+      consensus = await groqVisionService.recognize(photo);
+      const readingText =
+        `SYS ${consensus.sistolica} / DIA ${consensus.diastolica} / PULSE ${consensus.pulso}`;
+      updateOcrDebug(1, readingText);
+      console.log("SCAN: Groq reading", consensus);
+    } else {
+      const readings: ParsedBloodPressure[] = [];
 
-      updateOcrDebug(index + 1, result.text);
+      for (let index = 0; index < 3; index += 1) {
+        showMessage(
+          `Leyendo la pantalla localmente... ${index + 1}/3`,
+          "processing",
+        );
 
-      console.log("SCAN: OCR reading", index + 1, result.text);
-      console.log("SCAN: parsed reading", index + 1, parsed);
+        const result = await ocrService.recognize(photo);
+        const parsed = parseBloodPressureText(result.text);
 
-      readings.push(parsed);
+        updateOcrDebug(index + 1, result.text);
+
+        console.log("SCAN: OCR reading", index + 1, result.text);
+        console.log("SCAN: parsed reading", index + 1, parsed);
+
+        readings.push(parsed);
+      }
+
+      consensus = findConsensus(readings);
     }
 
-    const consensus = findConsensus(readings);
-
-    console.log("SCAN: OCR readings", readings);
     console.log("SCAN: OCR consensus", consensus);
 
     if (!consensus) {
@@ -351,7 +364,11 @@ async function captureSequence(video: HTMLVideoElement): Promise<void> {
 
     waitingForRetry = true;
     resetScanResult();
-    showMessage("No se pudo leer la medición.");
+    showMessage(
+      error instanceof Error
+        ? error.message
+        : "No se pudo leer la medición.",
+    );
   } finally {
     captureInProgress = false;
   }
@@ -556,18 +573,36 @@ async function confirmScanResult(): Promise<void> {
     observaciones: "",
   };
 
+  const stopButton = document.getElementById(
+    "stopCameraButton",
+  ) as HTMLButtonElement | null;
+
+  if (!stopButton) {
+    console.error("SCAN: camera stop button not found");
+    return;
+  }
+
+  stopCamera(stopButton, false);
+  requestSaveConfirmation(
+    () => saveScanRecord(record, confirmButton),
+    resetScanResult,
+  );
+}
+
+async function saveScanRecord(
+  record: BloodPressureRecord,
+  confirmButton: HTMLButtonElement,
+): Promise<void> {
   confirmButton.disabled = true;
-  showMessage("Guardando medición...");
 
   try {
     await saveBloodPressureRecord(record);
     resetScanResult();
-    showMessage("Medición guardada correctamente.");
   } catch (error) {
     console.error("SCAN: save error", error);
-    showMessage("No se pudo guardar la medición.");
+    throw error;
   } finally {
-    confirmButton.disabled = false;
+    updateConfirmButtonState();
   }
 }
 
@@ -615,7 +650,10 @@ function resetScanResult(): void {
   updateConfirmButtonState();
 }
 
-function stopCamera(stopButton: HTMLButtonElement): void {
+function stopCamera(
+  stopButton: HTMLButtonElement,
+  showStoppedMessage = true,
+): void {
   scanActive = false;
 
   if (focusAnimationFrame !== undefined) {
@@ -641,7 +679,9 @@ function stopCamera(stopButton: HTMLButtonElement): void {
     "focused",
   );
 
-  showMessage("Cámara detenida.");
+  if (showStoppedMessage) {
+    showMessage("Cámara detenida.");
+  }
 }
 
 function showMessage(

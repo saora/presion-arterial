@@ -11,6 +11,10 @@ import {
   historyEmptyTemplate,
   historyRecordTemplate,
 } from "./history-templates";
+import {
+  hideAppModal,
+  showAppModal,
+} from "../../components/navigation/navigation";
 
 
 type HistoryPeriod =
@@ -23,6 +27,9 @@ type HistoryPeriod =
 let allRecords: BloodPressureRecord[] = [];
 
 let currentPeriod: HistoryPeriod = "all";
+let pendingDeleteId: number | undefined;
+let deleteModalCloseTimeout: number | undefined;
+let deleteConfirmationLocked = false;
 
 
 /* =========================
@@ -40,6 +47,7 @@ export function renderHistoryPage(): string {
 
 export function initializeHistoryPage(): void {
   initializeHistoryFilters();
+  initializeDeleteConfirmationModal();
 
   loadHistory();
 
@@ -202,7 +210,7 @@ function initializeDeleteButtons(): void {
     );
 
   deleteButtons.forEach((button) => {
-    button.addEventListener("click", async (event) => {
+    button.addEventListener("click", (event) => {
       event.stopPropagation();
       event.preventDefault();
 
@@ -212,33 +220,164 @@ function initializeDeleteButtons(): void {
         return;
       }
 
-      const confirmed = window.confirm(
-        "¿Eliminar esta medición?",
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      button.disabled = true;
-
-      try {
-        await deleteBloodPressureRecord(id);
-        await loadHistory();
-      } catch (error) {
-        console.error(
-          "HISTORY: delete error",
-          error,
-        );
-
-        button.disabled = false;
-
-        window.alert(
-          "No se pudo eliminar la medición.",
-        );
-      }
+      pendingDeleteId = id;
+      resetDeleteModalFeedback();
+      showAppModal("deleteRecordModal");
     });
   });
+}
+
+function initializeDeleteConfirmationModal(): void {
+  document
+    .getElementById("cancelDeleteRecord")
+    ?.addEventListener("click", closeDeleteConfirmation);
+
+  document
+    .querySelector<HTMLElement>("[data-close-delete-modal]")
+    ?.addEventListener("click", closeDeleteConfirmation);
+
+  document
+    .getElementById("confirmDeleteRecord")
+    ?.addEventListener("click", () => {
+      void confirmDeleteRecord();
+    });
+}
+
+function closeDeleteConfirmation(): void {
+  if (deleteConfirmationLocked) {
+    return;
+  }
+
+  if (deleteModalCloseTimeout !== undefined) {
+    window.clearTimeout(deleteModalCloseTimeout);
+    deleteModalCloseTimeout = undefined;
+  }
+
+  pendingDeleteId = undefined;
+  hideAppModal("deleteRecordModal");
+}
+
+async function confirmDeleteRecord(): Promise<void> {
+  const id = pendingDeleteId;
+  const confirmButton = document.getElementById(
+    "confirmDeleteRecord",
+  ) as HTMLButtonElement | null;
+
+  if (id === undefined || !confirmButton || deleteConfirmationLocked) {
+    return;
+  }
+
+  deleteConfirmationLocked = true;
+  confirmButton.disabled = true;
+  setDeleteModalFeedback("loading", "Eliminando medición...");
+
+  try {
+    await deleteBloodPressureRecord(id);
+    setDeleteModalFeedback("success", "Medición eliminada correctamente.");
+    deleteModalCloseTimeout = window.setTimeout(() => {
+      deleteModalCloseTimeout = undefined;
+      deleteConfirmationLocked = false;
+      pendingDeleteId = undefined;
+      hideAppModal("deleteRecordModal");
+      resetDeleteModalFeedback();
+      void loadHistory();
+    }, 1800);
+  } catch (error) {
+    console.error("HISTORY: delete error", error);
+    deleteConfirmationLocked = false;
+    setDeleteModalFeedback("error", "No se pudo eliminar la medición.");
+
+    const cancelButton = document.getElementById(
+      "cancelDeleteRecord",
+    ) as HTMLButtonElement | null;
+
+    if (cancelButton) {
+      cancelButton.textContent = "Cerrar";
+    }
+    confirmButton.textContent = "Reintentar";
+  } finally {
+    confirmButton.disabled = false;
+  }
+}
+
+function setDeleteModalFeedback(
+  status: "loading" | "success" | "error",
+  message: string,
+): void {
+  const title = document.getElementById("deleteRecordTitle");
+  const description = document.getElementById("deleteRecordDescription");
+  const feedback = document.getElementById("deleteRecordFeedback");
+  const feedbackIcon = document.getElementById("deleteRecordFeedbackIcon");
+  const feedbackMessage = document.getElementById(
+    "deleteRecordFeedbackMessage",
+  );
+  const actions = document.getElementById("deleteRecordActions");
+
+  if (
+    !title || !description || !feedback || !feedbackIcon ||
+    !feedbackMessage || !actions
+  ) {
+    console.error("HISTORY: delete modal feedback elements not found");
+    return;
+  }
+
+  title.hidden = true;
+  description.hidden = true;
+  feedback.hidden = false;
+  feedback.className = `save-record-feedback is-${status}`;
+  feedbackMessage.textContent = message;
+  feedbackIcon.innerHTML = status === "success"
+    ? '<svg viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : "";
+  actions.hidden = status === "loading" || status === "success";
+}
+
+function resetDeleteModalFeedback(): void {
+  const title = document.getElementById("deleteRecordTitle");
+  const description = document.getElementById("deleteRecordDescription");
+  const feedback = document.getElementById("deleteRecordFeedback");
+  const feedbackIcon = document.getElementById("deleteRecordFeedbackIcon");
+  const feedbackMessage = document.getElementById(
+    "deleteRecordFeedbackMessage",
+  );
+  const actions = document.getElementById("deleteRecordActions");
+  const cancelButton = document.getElementById(
+    "cancelDeleteRecord",
+  ) as HTMLButtonElement | null;
+  const confirmButton = document.getElementById(
+    "confirmDeleteRecord",
+  ) as HTMLButtonElement | null;
+
+  deleteConfirmationLocked = false;
+
+  if (deleteModalCloseTimeout !== undefined) {
+    window.clearTimeout(deleteModalCloseTimeout);
+    deleteModalCloseTimeout = undefined;
+  }
+  if (title) {
+    title.hidden = false;
+  }
+  if (description) {
+    description.hidden = false;
+  }
+  if (feedback) {
+    feedback.hidden = true;
+    feedback.className = "save-record-feedback";
+  }
+  feedbackIcon?.replaceChildren();
+  if (feedbackMessage) {
+    feedbackMessage.textContent = "";
+  }
+  if (actions) {
+    actions.hidden = false;
+  }
+  if (cancelButton) {
+    cancelButton.textContent = "Cancelar";
+  }
+  if (confirmButton) {
+    confirmButton.textContent = "Aceptar";
+    confirmButton.disabled = false;
+  }
 }
 
 
@@ -362,4 +501,3 @@ function getRecordDate(
 
   return date;
 }
-

@@ -93,22 +93,18 @@ export function historyRecordTemplate(
   const recordContent = `
     <div class="history-card-header">
 
-      <div>
+      <div class="history-card-date-time">
         <span class="history-date">
           ${escapeHtml(formatDate(record.fecha))}
         </span>
-
-        <span class="history-time">
-          · ${escapeHtml(formatTime(record.hora))}
-        </span>
       </div>
 
-      <div class="history-arm-group">
-        <div class="history-arm ${getArmClass(record.brazo)}">
-          ${escapeHtml(record.brazo)}
-        </div>
-
-        ${deleteButton}
+      <span class="history-time">
+        ${renderTimeIcon(record.hora)}
+        ${escapeHtml(formatTime(record.hora))}
+      </span>
+      <div class="history-arm ${getArmClass(record.brazo)}">
+        ${escapeHtml(record.brazo)}
       </div>
 
     </div>
@@ -141,6 +137,8 @@ export function historyRecordTemplate(
 
       </div>
 
+      ${deleteButton}
+
     </div>
   `;
 
@@ -161,7 +159,7 @@ export function historyRecordTemplate(
   }
 
   return `
-    <article class="${cardClass}">
+    <article class="${cardClass} history-card-no-details">
       ${recordContent}
     </article>
   `;
@@ -289,11 +287,31 @@ function formatTime(time: string): string {
     return time;
   }
 
-  const period = hours >= 12 ? "PM" : "AM";
+  const period = hours >= 12 ? "pm" : "am";
 
   const displayHours = hours % 12 || 12;
 
   return `${displayHours}:${minutes} ${period}`;
+}
+
+function renderTimeIcon(time: string): string {
+  const hours = Number(time.split(":")[0]);
+
+  if (!Number.isInteger(hours) || hours < 0 || hours > 23) {
+    return "";
+  }
+
+  const isDaytime = hours >= 6 && hours < 18;
+  const icon = isDaytime
+    ? '<path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 2v3m-7.07.93 2.12 2.12m12.02-2.12-2.12 2.12"/>'
+    : '<path d="M19 15.5A8.5 8.5 0 0 1 8.5 4.5M19 15.5A8.5 8.5 0 1 1 8.5 4.5"/>';
+  const iconClass = isDaytime ? "history-time-icon-day" : "history-time-icon-night";
+
+  return `
+    <svg class="history-time-icon ${iconClass}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      ${icon}
+    </svg>
+  `;
 }
 
 /* =========================

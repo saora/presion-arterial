@@ -1,6 +1,7 @@
 import type { BloodPressureRecord } from "../../types/blood-pressure";
 import { saveBloodPressureRecord } from "../../services/api";
 import { enableSwipeToggle } from "../../utils/swipe-toggle";
+import { requestSaveConfirmation } from "../../components/navigation/navigation";
 import registerTemplate from "./register.html?raw";
 
 let dateTimeInterval: number | undefined;
@@ -240,27 +241,53 @@ async function handleFormSubmit(event: SubmitEvent): Promise<void> {
 
   console.log("REGISTER: record", record);
 
+  requestSaveConfirmation(
+    () => saveRegisterRecord(record, form, saveButton),
+    () => resetRegisterForm(form, saveButton),
+  );
+}
+
+async function saveRegisterRecord(
+  record: BloodPressureRecord,
+  form: HTMLFormElement,
+  saveButton: HTMLButtonElement,
+): Promise<void> {
   try {
     saveButton.disabled = true;
-
-    showMessage("Guardando medición...");
-
     await saveBloodPressureRecord(record);
-
-    showMessage("Medición guardada correctamente.");
-
-    form.reset();
-
-    initializeDateTime();
-
-    updateSaveButtonState(form, saveButton);
   } catch (error) {
     console.error("REGISTER: save error", error);
-
-    showMessage("No se pudo guardar la medición.");
-
+    throw error;
+  } finally {
     updateSaveButtonState(form, saveButton);
   }
+
+  resetRegisterForm(form, saveButton);
+}
+
+function resetRegisterForm(
+  form: HTMLFormElement,
+  saveButton: HTMLButtonElement,
+): void {
+  form.reset();
+
+  const extraDetails = document.getElementById("extraDetails");
+  const extraDetailsButton = document.getElementById(
+    "toggleExtraDetailsButton",
+  );
+
+  if (extraDetails) {
+    extraDetails.hidden = true;
+  }
+  if (extraDetailsButton) {
+    extraDetailsButton.textContent = "+";
+    extraDetailsButton.setAttribute("aria-expanded", "false");
+    extraDetailsButton.setAttribute("aria-label", "Mostrar más detalles");
+    extraDetailsButton.classList.remove("is-open");
+  }
+
+  initializeDateTime();
+  updateSaveButtonState(form, saveButton);
 }
 
 function buildRecord(formData: FormData): BloodPressureRecord {
@@ -296,18 +323,4 @@ function getNumberValue(
   const number = Number(value);
 
   return Number.isFinite(number) ? number : 0;
-}
-
-function showMessage(message: string): void {
-  const element = document.getElementById("formMessage");
-
-  if (!element) {
-    return;
-  }
-
-  element.textContent = message;
-
-  window.setTimeout(() => {
-    element.textContent = "";
-  }, 3000);
 }

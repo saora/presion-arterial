@@ -48,6 +48,10 @@
   color: #10b981 !important;
 }
 
+.chart-panel-legend .legend-pulso {
+  color: #e4a800 !important;
+}
+
 .chart-period-toggle {
   display: inline-flex;
   align-items: center;
@@ -63,8 +67,9 @@
   border-radius: 999px;
   background: transparent;
   color: #4f5d75;
-  padding: 6px 10px;
-  font-size: 12px;
+  min-height: 40px;
+  padding: 10px 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -87,18 +92,18 @@
 }
 
 .chart-card-stats {
-  min-height: 240px;
-  height: 280px;
+  min-height: 220px;
+  height: 220px;
   border-radius: 16px;
   background: rgba(148, 163, 184, 0.04);
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
 }
 
 .chart-line {
   position: relative;
   width: 100%;
-  min-width: 440px;
+  min-width: 0;
   min-height: 220px;
   height: 100%;
   border-radius: 12px;
@@ -107,9 +112,11 @@
 }
 
 .chart-line svg {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  min-width: 440px;
+  min-width: 0;
   height: 100%;
 }
 

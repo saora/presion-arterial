@@ -7,12 +7,35 @@
   top: 0;
   z-index: 10;
 
+  margin-top: -24px;
   margin-bottom: 20px;
-  padding: 10px 0 12px;
+  padding: 16px 0 30px;
 
   background: rgba(245, 245, 247, 0.9);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+}
+
+#page-register,
+#page-scan {
+  padding-top: calc(var(--page-content-offset) - 12px + env(safe-area-inset-top, 0px));
+}
+
+#page-home {
+  padding-top: calc(var(--page-content-offset) + env(safe-area-inset-top, 0px));
+}
+
+#page-home > .page-header,
+#page-register > .page-header,
+#page-scan > .page-header {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  left: 50%;
+  width: min(calc(100vw - 40px), 640px);
+  margin: 0;
+  padding: 16px 0 10px;
+  background: #f5f5f7;
+  transform: translateX(-50%);
 }
 
 .page-header-inline {
@@ -49,9 +72,10 @@
   align-items: center;
   justify-content: center;
 
-  width: auto;
-  min-width: 24px;
-  height: auto;
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
 
   border: 0;
   background: transparent;
@@ -123,10 +147,11 @@
 }
 
 .summary-card strong {
+  font-family: "Avenir Next", Avenir, sans-serif;
   font-size: 38px;
   line-height: 1;
-  letter-spacing: -0.08em;
-  font-weight: 800;
+  letter-spacing: -0.06em;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #1d1d1f;
 }
@@ -183,6 +208,55 @@
   gap: 12px 16px;
   margin-bottom: 18px;
   padding: 8px 4px 0;
+}
+
+.home-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-page-header-copy {
+  min-width: 0;
+}
+
+.home-profile-icon {
+  display: grid;
+  flex: 0 0 52px;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid rgba(59, 114, 255, 0.14);
+  border-radius: 50%;
+  background: #eef3ff;
+  color: #3b72ff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.home-profile-icon:hover {
+  background: #e2eaff;
+}
+
+.home-profile-icon:active {
+  transform: scale(0.96);
+}
+
+.home-profile-icon:focus-visible {
+  outline: 2px solid #3b72ff;
+  outline-offset: 3px;
+}
+
+.home-profile-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
 }
 
 .chart-panel-title {
@@ -251,7 +325,7 @@
 .register-choice-modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 200;
   display: grid;
   place-items: center;
 }
@@ -259,7 +333,9 @@
 .register-choice-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.38);
+  background: rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .register-choice-panel {
@@ -302,6 +378,61 @@
   text-align: center;
 }
 
+.delete-record-description {
+  margin: -8px 0 18px;
+  color: #6e6e73;
+  font-size: 14px;
+  text-align: center;
+}
+
+.save-record-feedback {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 8px 0 4px;
+  text-align: center;
+}
+
+.save-record-feedback[hidden] {
+  display: none;
+}
+
+.save-record-feedback p {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.save-record-feedback-icon:empty {
+  display: none;
+}
+
+.save-record-feedback-icon svg {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.save-record-feedback.is-success .save-record-feedback-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #d9f5ed;
+  color: #079879;
+}
+
+.save-record-feedback.is-success .save-record-feedback-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.save-record-feedback.is-error p {
+  color: #b94f5e;
+}
+
 .register-choice-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -337,6 +468,12 @@
   border-color: #007aff;
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 122, 255, 0.22);
+}
+
+.choice-button-danger {
+  background: #d98f9b;
+  border-color: #d98f9b;
+  color: #ffffff;
 }
 
 .modal-close-button {
