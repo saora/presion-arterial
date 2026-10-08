@@ -440,9 +440,12 @@ function filterRecords(
   }
 
   if (period === "month") {
-    startDate.setMonth(
-      now.getMonth() - 1,
-    );
+    return records.filter((record) => {
+      const recordDate = getRecordDate(record);
+
+      return recordDate.getFullYear() === now.getFullYear() &&
+        recordDate.getMonth() === now.getMonth();
+    });
   }
 
   return records.filter((record) => {

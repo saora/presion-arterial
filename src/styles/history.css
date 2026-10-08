@@ -392,11 +392,34 @@
 }
 
 .history-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   min-width: 0;
   margin: 0;
   color: #6e6e73;
   font-size: 11px;
   white-space: nowrap;
+}
+
+.history-time-icon {
+  display: block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.history-time-icon-day {
+  color: #e4a800;
+}
+
+.history-time-icon-night {
+  color: #3b72ff;
 }
 
 
@@ -500,7 +523,7 @@
   width: 16px;
   height: 16px;
   content: "♡";
-  color: #8e8e93;
+  color: #e5484d;
   font-size: 13px;
   line-height: 1;
 }
