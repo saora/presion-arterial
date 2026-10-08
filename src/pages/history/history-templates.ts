@@ -294,6 +294,7 @@ function formatTime(time: string): string {
   return `${displayHours}:${minutes} ${period}`;
 }
 
+
 function renderTimeIcon(time: string): string {
   const hours = Number(time.split(":")[0]);
 
@@ -301,14 +302,39 @@ function renderTimeIcon(time: string): string {
     return "";
   }
 
-  const isDaytime = hours >= 6 && hours < 18;
-  const icon = isDaytime
-    ? '<path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 2v3m-7.07.93 2.12 2.12m12.02-2.12-2.12 2.12"/>'
-    : '<path d="M19 15.5A8.5 8.5 0 0 1 8.5 4.5M19 15.5A8.5 8.5 0 1 1 8.5 4.5"/>';
-  const iconClass = isDaytime ? "history-time-icon-day" : "history-time-icon-night";
+  const timeOfDay =
+    hours >= 6 && hours < 12
+      ? "morning"
+      : hours >= 12 && hours < 19
+        ? "afternoon"
+        : "night";
+
+  const icons: Record<string, string> = {
+    morning:
+      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>',
+
+    afternoon:
+      '<path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 2v3m-7.07.93 2.12 2.12m12.02-2.12-2.12 2.12"/>',
+
+    night:
+      '<path d="M19 15.5A8.5 8.5 0 0 1 8.5 4.5M19 15.5A8.5 8.5 0 1 1 8.5 4.5"/>',
+  };
+
+  const iconClass = `history-time-icon-${timeOfDay}`;
+  const icon = icons[timeOfDay];
 
   return `
-    <svg class="history-time-icon ${iconClass}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <svg
+      class="history-time-icon ${iconClass}"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
       ${icon}
     </svg>
   `;
