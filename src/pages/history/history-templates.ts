@@ -97,12 +97,10 @@ export function historyRecordTemplate(
         <span class="history-date">
           ${escapeHtml(formatDate(record.fecha))}
         </span>
-
-        <span class="history-time">
-          · ${escapeHtml(formatTime(record.hora))}
-        </span>
       </div>
-
+      <span class="history-time">
+        ${escapeHtml(formatTime(record.hora))}
+      </span>
       <div class="history-arm ${getArmClass(record.brazo)}">
         ${escapeHtml(record.brazo)}
       </div>
@@ -287,7 +285,7 @@ function formatTime(time: string): string {
     return time;
   }
 
-  const period = hours >= 12 ? "PM" : "AM";
+  const period = hours >= 12 ? "pm" : "am";
 
   const displayHours = hours % 12 || 12;
 

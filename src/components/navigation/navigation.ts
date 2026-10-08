@@ -78,6 +78,21 @@ export function showPage(
   const navigationItems =
     document.querySelectorAll<HTMLButtonElement>(".nav-item");
 
+  const bottomNavigation =
+    document.querySelector<HTMLElement>(".bottom-navigation");
+
+  const hideBottomNavigation =
+    page === "register" || page === "profile" || page === "scan";
+
+  if (bottomNavigation) {
+    bottomNavigation.hidden = hideBottomNavigation;
+  }
+
+  document.querySelector(".app")?.classList.toggle(
+    "app-without-bottom-navigation",
+    hideBottomNavigation,
+  );
+
   pages.forEach((element) => {
     const isActive = element.id === `page-${page}`;
 

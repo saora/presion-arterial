@@ -6,14 +6,14 @@
   display: flex;
   flex-direction: column;
 
-  padding-top: 128px;
+  padding-top: calc(128px + env(safe-area-inset-top, 0px));
 
   gap: 8px;
 }
 
 .history-page-header {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   left: 50%;
   z-index: 10;
 
@@ -34,7 +34,7 @@
 
 .history-filters {
   position: fixed;
-  top: 78px;
+  top: calc(78px + env(safe-area-inset-top, 0px));
   left: 50%;
   z-index: 10;
 
@@ -367,9 +367,10 @@
 
 .history-card-header {
   display: grid;
-  grid-template-columns: 112px 64px minmax(36px, 1fr);
+  grid-template-columns: 112px 64px minmax(64px, 1fr);
   align-items: center;
   gap: 10px;
+  padding-right: 72px;
 
   margin: 0 0 6px;
 }
@@ -391,13 +392,11 @@
 }
 
 .history-time {
-  display: inline;
-
+  min-width: 0;
   margin: 0;
-
   color: #6e6e73;
-
   font-size: 11px;
+  white-space: nowrap;
 }
 
 

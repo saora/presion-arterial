@@ -6,6 +6,10 @@
   padding-bottom: 90px;
 }
 
+.app.app-without-bottom-navigation {
+  padding-bottom: 0;
+}
+
 .app-content {
   width: 100%;
   max-width: 680px;

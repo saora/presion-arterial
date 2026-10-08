@@ -1,10 +1,10 @@
 .profile-page {
-  padding-top: 94px;
+  padding-top: calc(94px + env(safe-area-inset-top, 0px));
 }
 
 .profile-page > .page-header {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   left: 50%;
   width: min(calc(100vw - 40px), 640px);
   margin: 0;

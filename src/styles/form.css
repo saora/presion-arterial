@@ -19,14 +19,14 @@
 #page-home,
 #page-register,
 #page-scan {
-  padding-top: 94px;
+  padding-top: calc(94px + env(safe-area-inset-top, 0px));
 }
 
 #page-home > .page-header,
 #page-register > .page-header,
 #page-scan > .page-header {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   left: 50%;
   width: min(calc(100vw - 40px), 640px);
   margin: 0;
@@ -118,9 +118,10 @@
   align-items: center;
   justify-content: center;
 
-  width: auto;
-  min-width: 24px;
-  height: auto;
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
 
   border: 0;
   background: transparent;
