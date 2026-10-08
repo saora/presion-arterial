@@ -13,8 +13,12 @@ export function renderHomePage(): string {
 
 export function initializeHomePage(): void {
   initializeChartPeriodToggle();
-  void loadHomeDashboard();
+  refreshHomeDashboard();
   console.log("HOME: initialized");
+}
+
+export function refreshHomeDashboard(): void {
+  void loadHomeDashboard();
 }
 
 async function loadHomeDashboard(): Promise<void> {
@@ -22,13 +26,13 @@ async function loadHomeDashboard(): Promise<void> {
     const records = await getBloodPressureRecords();
     const nextRecords = records.length > 0 ? sortRecords(records) : buildReferenceChartData();
     cachedRecords = nextRecords;
-    updateLatestMeasurement(cachedRecords[0]);
+    updateLatestMeasurement(records.length > 0 ? cachedRecords[0] : undefined);
     renderChart(cachedRecords);
   } catch (error) {
     console.error("HOME: error loading dashboard", error);
     const fallbackRecords = buildReferenceChartData();
     cachedRecords = fallbackRecords;
-    updateLatestMeasurement(cachedRecords[0]);
+    updateLatestMeasurement();
     renderChart(cachedRecords);
   }
 }
@@ -230,8 +234,16 @@ function buildStatisticsChartSVG(
       const y = yToSvg(tick);
       return `
         <line x1="${paddingLeft}" x2="${width - paddingRight}" y1="${y}" y2="${y}" stroke="rgba(148,163,184,0.18)" stroke-width="1" />
-        <text x="${paddingLeft - 8}" y="${y + 4}" text-anchor="end" fill="#8e8e93" font-size="10" font-weight="500" font-family="Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif">${tick}</text>
       `;
+    })
+    .join("");
+
+  const yAxisLabels = yTicks
+    .map((tick) => {
+      const y = yToSvg(tick);
+      const offsetFromCenter = y + 4 - height / 2;
+
+      return `<span class="chart-y-axis-label" style="top: calc(50% + ${offsetFromCenter}px)">${tick}</span>`;
     })
     .join("");
 
@@ -267,6 +279,7 @@ function buildStatisticsChartSVG(
     .join("");
 
   return `
+    <div class="chart-y-axis" aria-hidden="true">${yAxisLabels}</div>
     <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style="width: 100%; height: 100%; display: block;">
       <g>
         ${yGridLines}

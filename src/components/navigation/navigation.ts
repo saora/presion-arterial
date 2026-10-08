@@ -27,6 +27,17 @@ export function initializeNavigation(
     });
   });
 
+  document.querySelectorAll<HTMLButtonElement>("[data-show-page]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        const page = button.dataset.showPage;
+
+        if (page) {
+          showPage(page, onPageChange);
+        }
+      });
+    });
+
   const modal = document.getElementById("registerChoiceModal");
 
   modal?.querySelectorAll<HTMLButtonElement>("[data-register-choice]")

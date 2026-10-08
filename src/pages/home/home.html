@@ -1,7 +1,20 @@
 <section id="page-home" class="page active">
-  <div class="page-header">
-    <h2>Estadísticas</h2>
-    <p>Visualiza la evolución de tus mediciones.</p>
+  <div class="page-header home-page-header">
+    <div class="home-page-header-copy">
+      <h2>Estadísticas</h2>
+      <p>Visualiza la evolución de tus mediciones.</p>
+    </div>
+    <button
+      type="button"
+      class="home-profile-icon"
+      data-show-page="profile"
+      aria-label="Abrir perfil de usuario"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="8" r="3.5" />
+        <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+      </svg>
+    </button>
   </div>
 
   <div class="dashboard-summary-header">
@@ -12,7 +25,7 @@
     <article class="summary-card summary-card-primary">
       <div class="summary-card-content">
         <span class="summary-label">Sistólica</span>
-        <strong id="latest-sistolica">118</strong>
+        <strong id="latest-sistolica">--</strong>
         <small>mmHg</small>
       </div>
     </article>
@@ -20,7 +33,7 @@
     <article class="summary-card">
       <div class="summary-card-content">
         <span class="summary-label">Diastólica</span>
-        <strong id="latest-diastolica">76</strong>
+        <strong id="latest-diastolica">--</strong>
         <small>mmHg</small>
       </div>
     </article>
@@ -28,7 +41,7 @@
     <article class="summary-card">
       <div class="summary-card-content">
         <span class="summary-label">Pulso</span>
-        <strong id="latest-pulso">72</strong>
+        <strong id="latest-pulso">--</strong>
         <small>lpm</small>
       </div>
     </article>

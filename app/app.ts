@@ -6,6 +6,7 @@ import "../src/styles/form.css";
 import "../src/styles/chart.css";
 import "../src/styles/scan.css";
 import "../src/styles/history.css";
+import "../src/styles/profile.css";
 
 import appTemplate from "./app.html?raw";
 
@@ -19,6 +20,7 @@ import {
 import {
   renderHomePage,
   initializeHomePage,
+  refreshHomeDashboard,
 } from "../src/pages/home/home";
 
 import {
@@ -37,6 +39,7 @@ import {
   initializeHistoryPage,
   refreshHistoryPage,
 } from "../src/pages/history/history";
+import profileTemplate from "../src/pages/profile/profile.html?raw";
 
 export async function initializeApp(): Promise<void> {
   console.log("APP: initializeApp");
@@ -54,6 +57,7 @@ export async function initializeApp(): Promise<void> {
     .replace("{{REGISTER}}", renderRegisterPage())
     .replace("{{SCAN}}", renderScanPage())
     .replace("{{HISTORY}}", renderHistoryPage())
+    .replace("{{PROFILE}}", profileTemplate)
     .replace("{{NAVIGATION}}", renderNavigation());
 
   initializeHomePage();
@@ -61,6 +65,10 @@ export async function initializeApp(): Promise<void> {
   initializeHistoryPage();
   initializeScanPage();
   initializeNavigation((page) => {
+    if (page === "home") {
+      refreshHomeDashboard();
+    }
+
     if (page === "history") {
       refreshHistoryPage();
     }

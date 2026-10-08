@@ -63,8 +63,9 @@
   border-radius: 999px;
   background: transparent;
   color: #4f5d75;
-  padding: 6px 10px;
-  font-size: 12px;
+  min-height: 40px;
+  padding: 10px 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -106,7 +107,30 @@
   overflow: visible;
 }
 
+.chart-y-axis {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 32px;
+  height: 100%;
+  pointer-events: none;
+}
+
+.chart-y-axis-label {
+  position: absolute;
+  left: 24px;
+  color: #8e8e93;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translate(-100%, -50%);
+}
+
 .chart-line svg {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   min-width: 440px;

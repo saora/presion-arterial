@@ -1,0 +1,87 @@
+<section id="page-profile" class="page profile-page" hidden>
+  <div class="page-header page-header-inline">
+    <button
+      type="button"
+      class="page-back-button"
+      data-show-page="home"
+      aria-label="Volver a Inicio"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path
+          d="M15 18L9 12L15 6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    <div class="page-header-copy">
+      <h2>Perfil</h2>
+      <p>Datos del usuario</p>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <section class="profile-card" aria-labelledby="profileDetailsTitle">
+      <div class="profile-card-heading">
+        <div class="profile-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+          </svg>
+        </div>
+        <div>
+          <h3 id="profileDetailsTitle">Información personal</h3>
+          <p>Consulta tus datos registrados</p>
+        </div>
+      </div>
+
+      <dl class="profile-details">
+        <div class="profile-detail">
+          <dt>Nombre</dt>
+          <dd>Sin registrar</dd>
+        </div>
+        <div class="profile-detail">
+          <dt>Apellido</dt>
+          <dd>Sin registrar</dd>
+        </div>
+        <div class="profile-detail">
+          <dt>Edad</dt>
+          <dd>-- <span>años</span></dd>
+        </div>
+        <div class="profile-detail">
+          <dt>Peso</dt>
+          <dd>-- <span>kg</span></dd>
+        </div>
+        <div class="profile-detail">
+          <dt>Estatura</dt>
+          <dd>-- <span>cm</span></dd>
+        </div>
+        <div class="profile-detail profile-detail-date">
+          <dt>Última medición de peso</dt>
+          <dd>Sin registrar</dd>
+        </div>
+        <div class="profile-detail profile-detail-date">
+          <dt>Última medición de estatura</dt>
+          <dd>Sin registrar</dd>
+        </div>
+      </dl>
+
+      <div class="profile-actions">
+        <button type="button" class="profile-button profile-button-add">
+          <span aria-hidden="true">+</span>
+          Agregar datos
+        </button>
+        <button type="button" class="profile-button profile-button-edit">
+          Editar
+        </button>
+        <button type="button" class="profile-button profile-button-delete">
+          Eliminar
+        </button>
+      </div>
+    </section>
+  </div>
+</section>

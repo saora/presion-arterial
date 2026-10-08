@@ -254,29 +254,27 @@
 
 .history-delete-button {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
+  top: 50%;
+  right: 22px;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
-  width: 30px;
-  height: 30px;
-
+  width: 36px;
+  height: 36px;
   margin: 0;
 
   border: 0;
   border-radius: 8px;
-
   background: transparent;
-
-  color: #8e8e93;
-
+  color: #d98f9b;
   cursor: pointer;
+  transform: translateY(-50%);
+}
 
-  transform: translateX(-50%);
+.history-card-no-details .history-delete-button {
+  right: 34px;
 }
 
 .history-delete-button:hover {
@@ -296,8 +294,8 @@
 }
 
 .history-delete-button svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 
   fill: none;
   stroke: currentColor;
@@ -368,16 +366,17 @@
    ========================= */
 
 .history-card-header {
-  display: flex;
-
+  display: grid;
+  grid-template-columns: 112px 64px minmax(36px, 1fr);
   align-items: center;
-  justify-content: space-between;
-
   gap: 10px;
 
-  padding-right: 20px;
-
   margin: 0 0 6px;
+}
+
+.history-card-date-time {
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .history-date {
@@ -407,6 +406,8 @@
    ========================= */
 
 .history-arm {
+  justify-self: end;
+
   flex-shrink: 0;
 
   padding: 3px 8px;
@@ -421,11 +422,6 @@
   font-weight: 600;
 
   line-height: 1.2;
-}
-
-.history-arm-group {
-  position: relative;
-  flex-shrink: 0;
 }
 
 .history-arm-left {
@@ -446,18 +442,14 @@
    ========================= */
 
 .history-measurement {
-  display: flex;
-
+  display: grid;
+  grid-template-columns: 112px 64px;
   align-items: center;
-
   gap: 10px;
-
+  width: 100%;
   padding: 0;
-
   margin: 0;
-
   background: transparent;
-
   border: 0;
 }
 
@@ -479,8 +471,8 @@
 
   line-height: 1.2;
   font-weight: 700;
-
   letter-spacing: -0.2px;
+  font-variant-numeric: tabular-nums;
 }
 
 .history-pressure-unit {
@@ -494,24 +486,23 @@
 
 .history-pulse {
   display: flex;
-
-  flex-direction: row;
   align-items: center;
-
   gap: 4px;
-
+  width: 64px;
   padding: 0;
-
   border: 0;
 }
 
 .history-pulse::before {
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   content: "♡";
-
   color: #8e8e93;
-
   font-size: 13px;
-
   line-height: 1;
 }
 
@@ -522,6 +513,7 @@
 
   line-height: 1.2;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .history-pulse-unit {

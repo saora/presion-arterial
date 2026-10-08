@@ -93,7 +93,7 @@ export function historyRecordTemplate(
   const recordContent = `
     <div class="history-card-header">
 
-      <div>
+      <div class="history-card-date-time">
         <span class="history-date">
           ${escapeHtml(formatDate(record.fecha))}
         </span>
@@ -103,12 +103,8 @@ export function historyRecordTemplate(
         </span>
       </div>
 
-      <div class="history-arm-group">
-        <div class="history-arm ${getArmClass(record.brazo)}">
-          ${escapeHtml(record.brazo)}
-        </div>
-
-        ${deleteButton}
+      <div class="history-arm ${getArmClass(record.brazo)}">
+        ${escapeHtml(record.brazo)}
       </div>
 
     </div>
@@ -141,6 +137,8 @@ export function historyRecordTemplate(
 
       </div>
 
+      ${deleteButton}
+
     </div>
   `;
 
@@ -161,7 +159,7 @@ export function historyRecordTemplate(
   }
 
   return `
-    <article class="${cardClass}">
+    <article class="${cardClass} history-card-no-details">
       ${recordContent}
     </article>
   `;
