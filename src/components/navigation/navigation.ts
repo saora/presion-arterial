@@ -78,20 +78,7 @@ export function showPage(
   const navigationItems =
     document.querySelectorAll<HTMLButtonElement>(".nav-item");
 
-  const bottomNavigation =
-    document.querySelector<HTMLElement>(".bottom-navigation");
-
-  const hideBottomNavigation =
-    page === "register" || page === "profile" || page === "scan";
-
-  if (bottomNavigation) {
-    bottomNavigation.hidden = hideBottomNavigation;
-  }
-
-  document.querySelector(".app")?.classList.toggle(
-    "app-without-bottom-navigation",
-    hideBottomNavigation,
-  );
+  updateBottomNavigation(page);
 
   pages.forEach((element) => {
     const isActive = element.id === `page-${page}`;
@@ -112,6 +99,23 @@ export function showPage(
   onPageChange?.(page);
 }
 
+function updateBottomNavigation(page: string): void {
+  const bottomNavigation =
+    document.querySelector<HTMLElement>(".bottom-navigation");
+
+  const hideBottomNavigation =
+    page === "register" || page === "profile" || page === "scan";
+
+  if (bottomNavigation) {
+    bottomNavigation.hidden = hideBottomNavigation;
+  }
+
+  document.querySelector(".app")?.classList.toggle(
+    "app-without-bottom-navigation",
+    hideBottomNavigation,
+  );
+}
+
 function showRegisterChoiceModal(): void {
   const modal = document.getElementById("registerChoiceModal");
 
@@ -121,6 +125,18 @@ function showRegisterChoiceModal(): void {
 
   modal.hidden = false;
   modal.setAttribute("aria-hidden", "false");
+  const bottomNavigation =
+    document.querySelector<HTMLElement>(".bottom-navigation");
+  const app = document.querySelector(".app");
+
+  if (bottomNavigation) {
+    bottomNavigation.hidden = true;
+  }
+
+  app?.classList.add(
+    "app-without-bottom-navigation",
+    "register-choice-modal-open",
+  );
 }
 
 function hideRegisterChoiceModal(): void {
@@ -132,4 +148,7 @@ function hideRegisterChoiceModal(): void {
 
   modal.hidden = true;
   modal.setAttribute("aria-hidden", "true");
+  const activePage = document.querySelector<HTMLElement>(".page.active");
+  updateBottomNavigation(activePage?.id.replace(/^page-/, "") ?? "home");
+  document.querySelector(".app")?.classList.remove("register-choice-modal-open");
 }

@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
 
-  padding-top: calc(128px + env(safe-area-inset-top, 0px));
+  padding-top: calc(var(--page-content-offset) + 48px + env(safe-area-inset-top, 0px));
 
   gap: 8px;
 }
@@ -34,7 +34,7 @@
 
 .history-filters {
   position: fixed;
-  top: calc(78px + env(safe-area-inset-top, 0px));
+  top: calc(var(--page-content-offset) + 18px + env(safe-area-inset-top, 0px));
   left: 50%;
   z-index: 10;
 

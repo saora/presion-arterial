@@ -11,6 +11,8 @@
 }
 
 .app-content {
+  --page-content-offset: 60px;
+
   width: 100%;
   max-width: 680px;
 
