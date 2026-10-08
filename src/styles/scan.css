@@ -248,7 +248,7 @@
 
 .scan-result-header {
   display: grid;
-  gap: 4px;
+  gap: 12px;
 }
 
 .scan-result-metadata {
